@@ -1,241 +1,80 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Restaurant Smart Service: Live Prototype</title>
-<style>
-:root{--bg:#eef1f6;--card:#fff;--ink:#14213d;--mut:#64708a;--line:#d9dfeb;--acc:#0b7a75;--accbg:#d9f2ef;--red:#c0262d;--redbg:#fde8e8;--amb:#b45309;--ambbg:#fef3c7;--blu:#1d4ed8;--blubg:#e0e9ff;--hd:#14213d;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1424;--card:#18203a;--ink:#e8ecf7;--mut:#94a0bd;--line:#2c3556;--acc:#3fc9c0;--accbg:#12353a;--red:#ff7b82;--redbg:#3a1a24;--amb:#fbbf24;--ambbg:#3a2f14;--blu:#8fb0ff;--blubg:#1c2a55;--hd:#0a0f1d}}
-:root[data-theme=dark]{--bg:#0e1424;--card:#18203a;--ink:#e8ecf7;--mut:#94a0bd;--line:#2c3556;--acc:#3fc9c0;--accbg:#12353a;--red:#ff7b82;--redbg:#3a1a24;--amb:#fbbf24;--ambbg:#3a2f14;--blu:#8fb0ff;--blubg:#1c2a55;--hd:#0a0f1d}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-button,select{font:inherit;color:inherit}button{cursor:pointer}
-button:focus-visible,select:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.top{background:var(--hd);color:#fff;padding:12px 18px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
-.top h1{font:700 17px/1.2 Georgia,serif;margin:0;flex:1;min-width:220px}.top small{display:block;font:12px system-ui;opacity:.7}
-.top label{font-size:12px;opacity:.85}.top select,.top button{background:#26335a;color:#fff;border:1px solid #3a4a7a;border-radius:8px;padding:6px 10px}
-.guide{background:var(--card);border-bottom:1px solid var(--line);padding:8px 18px;color:var(--mut);font-size:13px}.guide b{color:var(--ink)}
-.tabs{display:none;gap:6px;padding:10px 12px 0}.tabs button{flex:1;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px}.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
-.wrap{display:grid;grid-template-columns:360px 360px minmax(420px,1fr);gap:16px;padding:16px;align-items:start}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Smart Table Service</title>
+  <link rel="stylesheet" href="design.css">
+</head>
+<body>
+  <div class="top">
+    <h1>Smart Table Service
+      <small>Live simulation · Customer, waiter and manager share one routing system</small>
+    </h1>
+    <div class="seg" role="group" aria-label="View">
+      <button id="vb1" data-act="view" data-id="demo" class="on">Live demo</button>
+      <button id="vb2" data-act="view" data-id="flow">Wireflow</button>
+    </div>
+    <label>Speed
+      <select id="sp" aria-label="Simulation speed">
+        <option value="1">1× (real: 45 s)</option>
+        <option value="3" selected>3× (45 s = 15 s)</option>
+        <option value="10">10× (45 s = 4.5 s)</option>
+      </select>
+    </label>
+    <button data-act="reset">Reset</button>
+  </div>
 
-.col h2{font:700 12px system-ui;color:var(--mut);margin:0 0 8px;letter-spacing:.04em;text-transform:uppercase}
-.phone{width:100%;max-width:360px;height:650px;overflow:auto;background:var(--card);border:2px solid var(--ink);border-radius:26px;padding:16px;position:relative}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
-h3,h4{margin:12px 0 6px;font-size:14px}.mut{color:var(--mut)}.sm{font-size:12px}
-.row{display:flex;gap:8px;align-items:center;justify-content:space-between}
-.svc{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;margin:0 0 8px;background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:6px 12px;text-align:left}
-.svc:hover{border-color:var(--acc)}.svc i{width:30px;height:30px;border-radius:50%;background:var(--accbg);color:var(--acc);display:grid;place-items:center;font-style:normal;font-weight:700;flex:none}
-.pri{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700;justify-content:center}
-.b{border:1.5px solid var(--line);background:var(--card);border-radius:9px;padding:7px 12px;min-height:38px}.b.p{background:var(--acc);color:#fff;border-color:var(--acc);font-weight:700}.b.d{background:var(--red);color:#fff;border-color:var(--red)}.b:disabled{opacity:.45;cursor:not-allowed}
-.st{border:1.5px solid var(--line);border-left-width:5px;border-radius:10px;padding:9px 11px;margin:8px 0}.st.blu{border-left-color:var(--blu)}.st.acc{border-left-color:var(--acc)}.st.amb{border-left-color:var(--amb)}.st.red{border-left-color:var(--red)}
-.tag,.chip{display:inline-block;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:700;border:1.5px solid currentColor;white-space:nowrap}
-.WAITING,.ASSIGNED,.PENDING{color:var(--blu)}.ESCALATED,.MISSED{color:var(--amb)}.ACCEPTED,.SERVED,.READY{color:var(--acc)}.FAILED,.REJECTED{color:var(--red)}.CANCELLED,.CLOSED,.CANCELLED{color:var(--mut)}
-.alertc{border:3px solid var(--red);border-radius:16px;padding:16px;text-align:center;margin:10px 0;background:var(--redbg)}
-.alertc .big{font-size:30px;font-weight:700}.alertc .cd{font-size:44px;font-weight:700;font-variant-numeric:tabular-nums}
-.idle{border:2px dashed var(--line);border-radius:12px;padding:26px 12px;text-align:center;color:var(--mut);margin:10px 0}
-.wt{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}.wt button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 11px}.wt button.on{background:var(--ink);color:var(--card)}.wt .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:var(--mut)}.wt .dot.on{background:var(--acc)}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px;margin-bottom:12px}.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px}.kpi b{font-size:22px;display:block}.kpi.red{border-color:var(--red);background:var(--redbg)}.kpi.red b{color:var(--red)}
-table{border-collapse:collapse;width:100%}th,td{text-align:left;padding:6px 6px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}th{color:var(--mut);font-weight:600}
-.sc{overflow-x:auto}.grid23{display:grid;grid-template-columns:repeat(12,1fr);gap:5px}.tb{height:32px;border:1.5px solid var(--line);border-radius:7px;display:grid;place-items:center;font-size:12px}
-.tb.alert{border-color:var(--red);background:var(--redbg);font-weight:700}.tb.wait{border-color:var(--blu);background:var(--blubg)}.tb.acc{border-color:var(--acc);background:var(--accbg)}
-.al{border:2px solid var(--red);background:var(--redbg);border-radius:12px;padding:10px 12px;margin-bottom:10px}
-.toast{position:sticky;top:0;background:var(--ink);color:var(--card);border-radius:10px;padding:8px 12px;margin-bottom:8px;z-index:2}
-.log{font:12px ui-monospace,Menlo,monospace;color:var(--mut);max-height:150px;overflow:auto}
-.qty{display:flex;gap:8px;align-items:center}.qty button{width:32px;height:32px;border-radius:8px;border:1.5px solid var(--line);background:var(--card)}
-.say{background:var(--card);border:2px solid var(--acc);border-radius:14px;padding:12px 16px;margin:12px 16px 0;font-size:15px}.say b{color:var(--acc)}
-.demo{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:10px 18px;background:var(--card);border-bottom:1px solid var(--line)}
-.jr{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;align-items:stretch}.jn{min-width:130px;flex:1;border:2px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px}.arrow{align-self:center;color:var(--mut)}
-.jn.WAITING{border-color:var(--blu);background:var(--blubg)}.jn.MISSED{border-color:var(--amb);background:var(--ambbg)}.jn.REJECTED,.jn.FAILED{border-color:var(--red);background:var(--redbg)}.jn.ACCEPTED{border-color:var(--acc);background:var(--accbg)}.jn.CANCELLED{border-color:var(--mut)}
-.pb{height:6px;background:var(--line);border-radius:3px;margin-top:6px}.pb i{display:block;height:100%;background:var(--blu);border-radius:3px}
-.col.look h2{color:var(--acc)}.col.look h2:after{content:"  \2190  look here"}.col.look .phone{box-shadow:0 0 0 4px var(--accbg)}
-:root{--bg:#f4f5f7}
-.top{background:var(--card);color:var(--ink);border-bottom:1px solid var(--line)}.top h1{font:700 19px/1.2 system-ui,sans-serif}.top small{color:var(--mut);opacity:1}
-.top label{color:var(--mut)}.top select,.top button{background:var(--card);color:var(--ink);border:1px solid var(--line)}
-.wrap{grid-template-columns:calc(410px*var(--z,1)) calc(410px*var(--z,1)) minmax(420px,1fr);justify-content:center}
-.fit{width:calc(410px*var(--z,1));height:calc(864px*var(--z,1))}
-.iph{width:410px;height:864px;transform:scale(var(--z,1));transform-origin:0 0;background:#0b0b0f;border-radius:62px;padding:10px;box-shadow:0 18px 40px rgba(20,33,61,.28)}
-.scrn{position:relative;width:390px;height:844px;background:var(--card);border-radius:52px;overflow:hidden}
-.isl{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:34px;background:#000;border-radius:20px;z-index:5}
-.sb{position:absolute;top:0;left:0;right:0;height:47px;display:flex;justify-content:space-between;align-items:center;padding:8px 34px 0;font-weight:700;font-size:15px;z-index:4}
-.scr{position:absolute;top:47px;bottom:34px;left:0;right:0;overflow:auto;padding:8px 18px 18px;font-size:15px}
-.hb{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.85;z-index:4}
-.col.look .iph{box-shadow:0 0 0 5px var(--accbg),0 18px 40px rgba(20,33,61,.28)}.col.look .phone{box-shadow:none}
-.qr{display:block;margin:14px auto;width:210px;height:210px;padding:12px;border:2px solid var(--ink);border-radius:16px;background:#fff}
-
-:root{--bg:#f5f2ec;--card:#fffdf9;--ink:#1f1b16;--mut:#7a7166;--line:#e4ddd0;--acc:#8a5a14;--accbg:#f3e7d0;--ok:#0f6b4f;--okbg:#dcf1e8;--hd:#1f1b16}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--ok:#4fd1a1;--okbg:#14352b}}
-.top{background:#1f1b16;color:#f5f2ec;border-bottom:0}.top h1{font:700 20px/1.2 Georgia,"Times New Roman",serif}.top small{color:#cbbfae}.top label{color:#cbbfae}.top select,.top button{background:#2e2820;color:#f5f2ec;border:1px solid #4a4132}
-.seg{display:flex;gap:4px;background:#2e2820;border-radius:10px;padding:3px}.seg button{border:0!important;background:transparent!important;padding:6px 14px;border-radius:8px}.seg button.on{background:#f5f2ec!important;color:#1f1b16!important;font-weight:700}
-.ACCEPTED,.SERVED,.READY{color:var(--ok)}.jn.ACCEPTED{border-color:var(--ok);background:var(--okbg)}.st.acc{border-left-color:var(--ok)}.tb.acc{border-color:var(--ok);background:var(--okbg)}.tag.ACCEPTED{color:var(--ok)}
-.svc i{background:var(--accbg);color:var(--acc)}.pri,.b.p{background:var(--acc);border-color:var(--acc)}
-.wrap{grid-template-columns:calc(410px*var(--z,1)) calc(410px*var(--z,1)) minmax(480px,1fr);gap:20px}
-
-
-button.tb{background:var(--card);color:var(--ink);cursor:pointer;padding:0}.tb.sel{outline:3px solid var(--acc);outline-offset:1px}
-.inp{border:1.5px solid var(--line);border-radius:10px;padding:11px 12px;margin-top:4px}
-.fr{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:10px 0}.fn{padding:7px 11px;border-radius:8px;border:2px solid var(--line);background:var(--card);font-size:13px;max-width:210px}
-.fn.S{border-color:var(--ink)}.fn.A{border-radius:999px}.fn.Y{border-style:dashed}.fn.D{border-color:var(--amb);background:var(--ambbg);font-weight:700;transform:skewX(-6deg)}.fn.OK{border-color:var(--ok);background:var(--okbg)}.fn.X{border-color:var(--red);background:var(--redbg)}.fn.T{border-color:var(--amb);background:var(--ambbg)}.fn.M{background:var(--ink);color:var(--card);border-color:var(--ink)}
-.fa{font-size:12px;color:var(--mut);text-align:center;max-width:120px}.fa b{display:block;color:var(--acc);font-size:11px}
-.fw{max-width:1200px;margin:auto;padding:16px}.fw .panel h3{margin-top:0}.lg{display:flex;gap:8px;flex-wrap:wrap}
-.subs{display:flex;gap:6px;flex-wrap:wrap;margin:-2px 0 10px 8px}.subs .b{flex:1;min-width:70px}
-html.tabs .wrap{grid-template-columns:1fr;padding:12px}html.tabs .col{display:none}html.tabs .col.show{display:block}html.tabs .tabs{display:flex}.fit{margin:auto}
-</style></head><body>
-<div class="top"><h1>Smart Table Service<small>Live demo: customer, waiter and manager are all connected through one system</small></h1>
-<div class="seg" role="group" aria-label="View"><button id="vb1" data-act="view" data-id="demo" class="on">Live demo</button><button id="vb2" data-act="view" data-id="flow">Wireflow</button></div><label>Speed <select id="sp"><option value="1">1x (real: 45s)</option><option value="3" selected>3x (45s = 15s)</option><option value="10">10x (45s = 4.5s)</option></select></label>
-<button data-act="reset">Reset</button></div>
-<div id="vdemo"><div class="demo"><b>Run demo (auto):</b><button class="b" data-act="demo" data-k="n">1. Normal: Rahul accepts</button><button class="b" data-act="demo" data-k="r">2. Reject, then accept</button><button class="b" data-act="demo" data-k="i">3. Nobody accepts</button><button class="b" data-act="demo" data-k="o">4. No waiter online</button><button class="b" data-act="demo" data-k="f">5. Fair share (10 requests)</button><button class="b" data-act="demo" data-k="p">6. Primary waiter memory (Table 1)</button><button class="b" id="tabsb" data-act="tabs" style="display:none">Tabs view</button><button class="b" id="netb" data-act="net">Network: ON</button><span class="mut sm">Simulation: not a real backend.</span></div>
-<div class="say" id="say"></div><div class="panel" id="jr" style="margin:12px 16px 0"></div>
-<div class="tabs" id="tabs"></div>
-<div class="wrap">
-<section class="col" id="c1"><h2>Customer phone (iPhone 13)</h2><div class="fit"><div class="iph"><div class="scrn"><div class="isl"></div><div class="sb"><span>9:41</span><span>5G &#9679;&#9679;&#9679;</span></div><div class="scr" id="cust"></div><div class="hb"></div></div></div></div></section>
-<section class="col" id="c2"><h2>Waiter phone (iPhone 13)</h2><div class="fit"><div class="iph"><div class="scrn"><div class="isl"></div><div class="sb"><span>9:41</span><span>5G &#9679;&#9679;&#9679;</span></div><div class="scr" id="wait"></div><div class="hb"></div></div></div></div></section>
-<section class="col" id="c3"><h2>Manager dashboard</h2><div id="mgr"></div></section>
-</div>
-</div><div id="vflow" class="fw" style="display:none"></div>
-<script>
-const TY=[["water","Water Bottle","W"],["salad","Salad / Chutney Refill","S"],["spt","Salt / Pepper / Tissue","T"],["bill","Ask for Bill","B"],["cutlery","Plate / Spoon / Bowl / Glass","P"],["call","Call Waiter","C"],["custom","Custom request","?"]];
-const SUB={water:{m:1,o:["Cold","Normal","Hot"]},spt:{m:0,o:["Salt","Pepper","Tissue"]},bill:{m:1,o:["Cash","Online"]},cutlery:{m:0,o:["Plate","Spoon","Bowl","Glass"]}};
-const esc=x=>String(x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const TN=Object.fromEntries(TY.map(t=>[t[0],t[1].split(" (")[0]]));
-const MENU=[["Veg Biryani",200,0],["Tandoori Roti",20],["Butter Naan",40],["Steam Rice",100],["Jeera Rice",130],["Cold Drink",40],["Sweet Lassi",70],["Dal Tadka",180],["Gulab Jamun",70]];
-const OS=["PENDING","CONFIRMED","PREPARING","READY","SERVED"];
-let W,R,A,O,P,L,S,D=true;
-const LB=r=>TN[r.k]+(r.d?" ("+esc(r.d)+")":"");
-const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
-function init(){W=["Rahul","Aman","Vikas","Suresh","Mohit"].map((n,i)=>({id:i,n,on:i<3,push:true,miss:0,rej:0,acc:0,last:0}));
-R=[];A=[];O=[];P={7:0};L=[];S={t:0,sp:+(document.getElementById("sp")||{value:3}).value,table:7,cv:"home",cart:{},sel:0,tab:"c1",toast:"",tt:0,rid:500,oid:0,aid:0,tabs:false,queue:null,qt:0,pb:0,open:null,pick:{},ctext:"",view:"demo",net:true,wl:false,rj:null,offc:null,wn:{},qrbad:false,wbad:false,tsel:null,ac:[],scan:false,say:"To start, press one of the demo buttons above, or tap Water on the Customer screen.",look:"c1",pre:"",plan:null};D=true}
-const log=m=>{L.unshift(fmt(S.t)+"  "+m);L.length=Math.min(L.length,12)};
-const say=(m,l)=>{S.say=m;if(l)S.look=l;D=true};
-const toast=m=>{S.toast=m;S.tt=Date.now()+3500;D=true};
-const fs=w=>w.acc+R.filter(r=>r.cur&&r.cur.w==w.id).length;
-const load=w=>R.filter(r=>(r.status=="ACCEPTED"&&r.by==w.id)||(r.cur&&r.cur.w==w.id)).length;
-const open=r=>!["CLOSED","CANCELLED"].includes(r.status);
-function pick(r){const x=[...r.at.map(a=>a.w),...r.ex];const el=W.filter(w=>w.on&&!x.includes(w.id));if(!el.length)return null;
- const p=el.find(w=>w.id==P[r.table]);if(p&&!r.at.length)return p;return el.sort((a,b)=>fs(a)-fs(b)||load(a)-load(b)||a.last-b.last)[0]}
-function assign(r,mw){const w=mw!=null?W[mw]:pick(r);if(!w)return fail(r,r.at.length?"ALL":"NONE");
- const secs=(mw==null&&!r.at.length)?45:30;w.last=S.t;if(S.rj==null)S.sel=w.id;
- r.status=r.at.length?"ESCALATED":"ASSIGNED";r.cur={w:w.id,dl:S.t+secs*1000};r.at.push({w:w.id,st:"WAITING",secs,t:S.t,dl:S.t+secs*1000});
- log(`#${r.id} T${r.table} ${LB(r)} &rarr; ${w.n} (${secs}s, attempt ${r.at.length})`);say(S.pre+`Request sent to ${w.n} (attempt ${r.at.length}/3). Must accept within ${secs} sec. `+(mw!=null?'Chosen by the manager.':secs==45?(w.id==P[r.table]?'First waiter: the primary waiter of this table, so 45 sec.':'First waiter: the one with the least work so far (fair share), so 45 sec.'):'Next online waiter with the least work so far, 30 sec.'),'c2');S.pre='';D=true}
-function fail(r,type){r.status="FAILED";r.cur=null;r.last=S.t;r.rs=false;
- A.push({id:++S.aid,r:r.id,type,open:true,at:S.t});log(`#${r.id} FAILED &rarr; manager alert (${type=="NONE"?"no waiter online":r.at.length+" attempts fail"})`);say(S.pre+(type=="NONE"?"No waiter is online, so a HIGH PRIORITY alert went straight to the Manager. ":r.at.length+" waiters did not respond, so a HIGH PRIORITY alert went to the Manager. ")+"On the Manager screen you can assign a waiter or resolve the alert.","c3");S.pre="";D=true}
-function next(r){if(r.at.length>=3)fail(r,"ALL");else assign(r)}
-function end(r,st){const a=r.at[r.at.length-1];a.st=st;a.e=S.t;r.cur=null;D=true}
-function tick(){const dt=250*S.sp;S.t+=dt;
- R.forEach(r=>{if(r.cur&&S.t>=r.cur.dl){const w=W[r.cur.w];w.miss++;log(`#${r.id} ${w.n} did not accept (MISSED)`);S.wn[w.id]={m:`Table ${r.table} (${LB(r)}): no response, the request moved to the next waiter.`,x:Date.now()+9000};S.pre=w.n+" did not respond within "+r.at[r.at.length-1].secs+" sec (MISSED), so the request moved to the next waiter automatically. ";end(r,"MISSED");next(r)}
-  if(open(r)&&!r.rs&&S.t-r.last>=60000){r.rs=true;D=true}
-  if(r.status=="ACCEPTED"){if(S.t-r.acc>=600000){r.status="CLOSED";log(`#${r.id} auto-closed 10 min after accept`);say("The request closed automatically 10 min after being accepted.","c3")}}});
- for(const k in S.wn)if(Date.now()>S.wn[k].x){delete S.wn[k];D=true}
- if(S.queue&&S.queue.length){const busy=R.some(r=>r.cur||["PENDING","ASSIGNED","ESCALATED"].includes(r.status));if(!busy){if(!S.qt)S.qt=Date.now()+2500;else if(Date.now()>=S.qt){S.qt=0;S.queue.shift()()}}}
- if(S.plan)R.forEach(r=>{if(r.cur){if(S.sel!=r.cur.w){S.sel=r.cur.w;D=true}const pl=S.plan,act=(Array.isArray(pl[0])?pl[r.id-S.pb-1]||[]:pl)[r.at.length-1];if(!r.cur.pl)r.cur.pl=Date.now()+1500;else if(act&&act!="ignore"&&Date.now()>=r.cur.pl){const w=r.cur.w;act=="accept"?accept(w,r.id):reject(w,r.id,"Busy")}}});
- document.querySelectorAll("[data-pb]").forEach(e=>{const p=e.dataset.pb.split("|");e.style.width=Math.min(100,100-(+p[0]-S.t)/(p[1]*10))+"%"});
- if(S.toast&&Date.now()>S.tt){S.toast="";D=true}
- document.querySelectorAll("[data-cd]").forEach(e=>e.textContent=fmt(+e.dataset.cd-S.t));
- document.querySelectorAll("[data-age]").forEach(e=>e.textContent=fmt(S.t-+e.dataset.age));
- if(D)render()}
-function req(k,det){if(!S.net)return toast("No internet. Please try again when the connection is back.");const d=R.find(r=>r.table==S.table&&r.k==k&&["PENDING","ASSIGNED","ESCALATED"].includes(r.status));
- if(d)return toast("This request has already been sent.");
- const r={id:++S.rid,table:S.table,k,d:det||"",status:"PENDING",at:[],ex:[],cur:null,by:null,rsn:0,last:S.t,rs:false,t0:S.t};R.push(r);
- log(`#${r.id} Table ${r.table}: ${LB(r)} request`);toast(LB(r)+" request sent.");assign(r)}
-function resend(id){const r=R.find(x=>x.id==id);if(!r||!r.rs)return;if(r.rsn>=3&&r.status!="ACCEPTED")return toast("Resend limit (3) reached.");
- if(r.cur)return toast("The request is currently with a waiter.");
- r.rsn++;r.last=S.t;r.rs=false;if(r.status=="ACCEPTED"){r.ex.push(r.by);r.by=null}
- else r.at.forEach(a=>{});A.forEach(a=>{if(a.r==r.id)a.open=false});
- r.at=r.at.filter(a=>a.st=="ACCEPTED"||0);r.status="PENDING";log(`#${r.id} customer resent (#${r.rsn})`);toast("Request sent again.");say("Customer pressed Resend: a new routing cycle starts.","c2");
- const x=r.ex;assign(r)}
-function accept(wid,id){const r=R.find(x=>x.id==id);if(!r||!r.cur||r.cur.w!=wid||S.t>=r.cur.dl)return toast("Request expire ho chuki.");
- const w=W[wid];w.acc++;S.ac.push(S.t-r.at[r.at.length-1].t);end(r,"ACCEPTED");r.status="ACCEPTED";r.by=wid;r.acc=S.t;r.pr=false;
- if(P[r.table]==null||!W[P[r.table]].on||r.at.some(a=>a.w==P[r.table]&&a.st!="ACCEPTED"))P[r.table]=wid;
- log(`#${r.id} ${w.n} ACCEPTED (Table ${r.table} primary: ${W[P[r.table]].n})`);say(`${w.n} accepted. The customer now sees "A waiter is on the way", and the waiter does not need to press Delivered. ${W[P[r.table]].n} is now the primary waiter for Table ${r.table}.`,"c1");D=true}
-function reject(wid,id,rs){const r=R.find(x=>x.id==id);if(!r||!r.cur||r.cur.w!=wid)return;W[wid].rej++;log(`#${r.id} ${W[wid].n} REJECTED, going to the next waiter immediately`);S.pre=W[wid].n+" rejected, so the request went to the next waiter immediately (no 30 sec wait). ";r.at[r.at.length-1].rs=rs||"Other";end(r,"REJECTED");next(r)}
-function toggle(id){const w=W[id];w.on=!w.on;log(`${w.n} is now ${w.on?"ONLINE":"OFFLINE"}`);say(w.n+(w.on?" is now ONLINE and will receive requests.":" is now OFFLINE: gets no requests, and open requests move to other waiters."),"c3");
- if(!w.on){R.forEach(r=>{if(r.cur&&r.cur.w==id){end(r,"CANCELLED");next(r)}
-  if(r.status=="ACCEPTED"&&r.by==id){r.ex.push(id);r.by=null;log(`#${r.id} ${w.n} offline, request re-routed`);r.status="PENDING";assign(r)}})}D=true}
-const asg=(aid)=>{const a=A.find(x=>x.id==aid),r=R.find(x=>x.id==a.r),v=document.getElementById("as"+aid).value;if(v==="")return;
- log(`#${r.id} manager assigned to ${W[v].n}`);r.at.push;assign(r,+v)};
-const resolve=aid=>{const a=A.find(x=>x.id==aid);a.open=false;const r=R.find(x=>x.id==a.r);if(r.status=="FAILED")r.status="CANCELLED";log(`Alert #${aid} resolved`);say("Manager resolved the alert.","c3");D=true};
-function scanV(){let q="";for(let y=0;y<11;y++)for(let x=0;x<11;x++){const f=(x<3&&y<3)||(x>7&&y<3)||(x<3&&y>7);const on=f?!((x%8==1)&&(y%8==1)):(x*7+y*13+x*y)%3==0;if(on)q+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}
- return `<div style="text-align:center;padding-top:34px"><span class="tag ACCEPTED">Table ${S.table}</span><h3 style="font-size:22px;margin:16px 0 4px">Scan the QR code on your table</h3><div class="mut">No app to install. It opens right in the browser.</div><svg class="qr" viewBox="0 0 11 11" fill="#14213d" shape-rendering="crispEdges" aria-hidden="true">${q}</svg><button class="svc pri" data-act="scan">Scan</button><button class="b" style="margin-top:6px" data-act="badqr">Demo: show invalid QR</button><div class="mut sm" style="margin-top:8px">The table number is detected automatically.</div></div>`}
-function badQR(){return `<div style="text-align:center;padding-top:60px"><span class="tag REJECTED">QR error</span><h3 style="font-size:22px">Invalid QR code</h3><div class="mut">The QR code has expired or is wrong. Please ask a waiter for help.</div><button class="b" style="margin-top:20px" data-act="qrok">Back</button></div>`}
-function tdet(){const n=S.tsel,rs=R.filter(r=>r.table==n&&open(r));return `<div class="st blu" style="margin-top:8px"><b>Table ${n}</b> (${n<=18?"Indoor":"Outdoor"})<br>Primary waiter: ${P[n]!=null?W[P[n]].n:"none yet"}<br>Open requests: ${rs.length?rs.map(r=>"#"+r.id+" "+LB(r)+" ("+r.status+")").join(", "):"none"}<br>Session: ${n==S.table&&S.scan?"ACTIVE":"-"}</div>`}
-function QS(){return TY.filter(t=>t[0]!="custom").map(t=>{const k=t[0],sb=SUB[k],op=S.open==k;
- const btn=`<button class="svc" data-act="${sb?"grp":"req"}" data-k="${k}" ${sb?`aria-expanded="${op}"`:""}><i>${t[2]}</i><span>${t[1]}</span>${sb?`<span class="mut" style="margin-left:auto">${op?"&#9650;":"&#9662;"}</span>`:""}</button>`;
- if(!sb||!op)return btn;const pk=S.pick[k]||[];
- return btn+(sb.m?`<div class="subs">${sb.o.map(v=>`<button class="b" data-act="opt" data-k="${k}" data-v="${v}">${v}</button>`).join("")}</div>`:`<div class="subs">${sb.o.map(v=>`<button class="b ${pk.includes(v)?"p":""}" data-act="pick" data-k="${k}" data-v="${v}" aria-pressed="${pk.includes(v)}">${v}</button>`).join("")}</div><button class="b p" style="width:100%;margin-bottom:8px" data-act="sendm" data-k="${k}" ${pk.length?"":"disabled"}>Send${pk.length?" ("+pk.join(", ")+")":""}</button>`)}).join("")+`<div class="svc" style="display:block;cursor:default"><b>Need something else?</b><div class="row" style="margin-top:6px;gap:6px"><input id="ctext" maxlength="120" value="${esc(S.ctext)}" placeholder="Type here..." aria-label="Custom request" style="flex:1;min-width:0;border:1.5px solid var(--line);border-radius:8px;padding:8px;background:var(--card);color:var(--ink)"><button class="b p" data-act="sendc">Send</button></div></div>`}
-function cust(){if(S.qrbad)return badQR();if(!S.scan)return scanV();const my=R.filter(r=>r.table==S.table&&open(r)),mo=O.filter(o=>o.table==S.table);
- const hd=`<div class="row"><b>Restaurant Name</b><span class="tag ACCEPTED">Table <select data-sel="table" aria-label="Table">${Array.from({length:23},(_,i)=>`<option ${i+1==S.table?"selected":""}>${i+1}</option>`).join("")}</select></span></div>${S.toast?`<div class="toast">${S.toast}</div>`:""}`;
- if(S.cv=="menu"){const n=Object.values(S.cart).reduce((a,b)=>a+b,0),tot=MENU.reduce((s,m,i)=>s+m[1]*(S.cart[i]||0),0);
-  return hd+`<h4>Menu</h4>`+MENU.map((m,i)=>`<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span>${m[0]}${m[2]===0?` <span class="tag REJECTED">Unavailable</span>`:""}<br><span class="mut sm">Rs ${m[1]}</span></span><span class="qty"><button data-act="q-" data-i="${i}" aria-label="kam">-</button><b>${S.cart[i]||0}</b><button data-act="q+" data-i="${i}" aria-label="zyada" ${m[2]===0?"disabled":""}>+</button></span></div>`).join("")+
-  `<div class="row" style="margin-top:12px"><button class="b" data-act="home">Back</button><button class="b p" data-act="order" ${n?"":"disabled"}>Place order (Rs ${tot})</button></div>`}
- const cs=r=>{const ac=r.status=="ACCEPTED",m=["PENDING","ASSIGNED","ESCALATED"].includes(r.status)?["blu","Request sent, looking for a waiter..."]:ac?["acc","A waiter is on the way"]:["amb","This is taking longer than usual. The manager has been informed."];
-  return `<div class="st ${m[0]}"><b>${LB(r)}</b><br>${m[1]}${ac?"":`<div class="row" style="margin-top:6px"><span></span><button class="b" data-act="resend" data-id="${r.id}" ${r.rs&&!r.cur&&r.rsn<3?"":"disabled"}>Resend Request</button></div>${r.rsn>=3?'<div class="sm mut">Resend limit reached. The manager has been informed.</div>':r.rs?"":'<div class="sm mut">Resend becomes available after 60 sec</div>'}`}</div>`};
- return hd+(S.net?"":`<div class="st red"><b>Connection lost</b><br>Your request is safe on the server. Status will show once you are back online.</div>`)+`<h4>Quick Service</h4>`+QS()+
- `<h4>Order More</h4><button class="svc pri" data-act="menu">View Menu</button>`+(my.length?`<h4>Your requests</h4>`+my.map(cs).join(""):"")+
- (mo.length?`<h4>Your orders</h4>`+mo.map(o=>`<div class="row sm" style="padding:4px 0"><span>#${o.id}: ${o.items}</span><span class="chip ${o.s=="CONFIRMED"?"WAITING":o.s=="PREPARING"?"ESCALATED":o.s}">${o.s}</span></div>`).join(""):"")}
-function wlogin(){return `<div style="padding-top:30px"><h3 style="font-size:22px;margin:0 0 4px">Staff Login</h3><div class="mut">Enter your phone number and PIN</div><div class="sm mut" style="margin-top:16px">Phone</div><div class="inp">9000000001</div><div class="sm mut" style="margin-top:12px">PIN</div><div class="inp">&bull; &bull; &bull; &bull;</div>${S.wbad?`<div class="st red">Wrong phone or PIN. Please try again.</div>`:""}<button class="b p" style="width:100%;min-height:50px;margin-top:16px" data-act="wlogin">Login</button><button class="b" style="width:100%;margin-top:8px" data-act="wbad">Demo: wrong PIN</button></div>`}
-function wait(){if(!S.wl)return wlogin();const w=W[S.sel],inc=R.find(r=>r.cur&&r.cur.w==w.id),act=R.filter(r=>r.status=="ACCEPTED"&&r.by==w.id),wn=S.wn[w.id],n=act.length+(inc?1:0);
- const tb=`<div class="wt">${W.map(x=>`<button data-act="sel" data-id="${x.id}" class="${x.id==S.sel?"on":""}"><span class="dot ${x.on?"on":""}"></span>${x.n}</button>`).join("")}</div>`;
- const hd=`<div class="row"><b>${w.n}</b><button class="b ${w.on?"p":""}" data-act="togw" data-id="${w.id}" aria-pressed="${w.on}">${w.on?"ONLINE":"OFFLINE"}</button></div><div class="sm mut" style="margin:4px 0 8px">Notifications: <b style="color:${w.push?"var(--ok)":"var(--red)"}">${w.push?"ON":"OFF"}</b></div>`;
- let mid;
- if(S.offc==w.id)mid=`<div class="st amb"><b>Before going offline</b><br>You have ${n} open request(s). If you go offline, they will move to other waiters.<div class="row" style="margin-top:8px"><button class="b" data-act="offx">Back</button><button class="b d" data-act="offok">Yes, go offline</button></div></div>`;
- else if(!w.on)mid=`<div class="idle">You are OFFLINE. You will not receive requests.</div>`;
- else if(inc&&!w.push)mid=`<div class="idle">Notifications are off, so the alert did not arrive.<br>Turn Push ON from the Manager screen.</div>`;
- else if(inc&&S.rj==inc.id)mid=`<div class="st red"><b>Table ${inc.table}: Why reject?</b> <span class="tag WAITING" data-cd="${inc.cur.dl}">${fmt(inc.cur.dl-S.t)}</span>${["Busy","At another table","On break","Other"].map(r=>`<button class="b" style="width:100%;margin-top:6px;text-align:left" data-act="rjgo" data-id="${inc.id}" data-r="${r}">${r}</button>`).join("")}<button class="b" style="width:100%;margin-top:6px" data-act="rjx">Back</button></div>`;
- else if(inc)mid=`<div class="alertc"><div style="color:var(--red);font-weight:700">NEW REQUEST</div><div class="big">TABLE ${inc.table}</div><div style="font-size:20px">${LB(inc)}</div><div class="cd" data-cd="${inc.cur.dl}">${fmt(inc.cur.dl-S.t)}</div><div class="mut sm">${inc.at.length==1&&w.id==P[inc.table]?"Your primary table":"Attempt "+inc.at.length+" / 3"}</div></div><button class="b p" style="width:100%;min-height:54px;font-size:18px" data-act="acc" data-id="${inc.id}">ACCEPT</button><button class="b" style="width:100%;margin-top:8px" data-act="rjopen" data-id="${inc.id}">Reject</button>`;
- else mid=`<div class="idle">No new requests.<br>Send a request from the Customer screen.</div>`;
- return tb+hd+(wn?`<div class="st amb"><b>Request missed</b><br>${wn.m}</div>`:"")+mid+`<h4>My active requests</h4>`+(act.length?act.map(r=>`<div class="st acc"><b>Table ${r.table}</b>: ${LB(r)}</div>`).join(""):`<div class="mut sm">None right now. No Delivered button needed.</div>`)+`<h4>Today</h4><div class="mut sm">Accept ${w.acc}, Missed ${w.miss}, Reject ${w.rej}</div>`}
-const chip=(a)=>`<span class="chip ${a.st}" title="${a.st}">${W[a.w].n} ${a.st.toLowerCase()}${a.rs?" ("+a.rs+")":""}${a.st=="WAITING"&&a.dl?` <span data-cd="${a.dl}">${fmt(a.dl-S.t)}</span>`:a.e!=null?` ${Math.round((a.e-a.t)/1000)}s`:""}</span> `;
-function mgr(){const on=W.filter(w=>w.on).length,orq=R.filter(open),oa=A.filter(a=>a.open),ord=O.filter(o=>o.s!="SERVED");
- const k=(n,v,c)=>`<div class="kpi ${c||""}"><b>${v}</b><span class="mut sm">${n}</span></div>`;
- const al=oa.map(a=>{const r=R.find(x=>x.id==a.r);return `<div class="al"><div class="row"><b style="color:var(--red)">HIGH PRIORITY: #${r.id}, Table ${r.table}, ${LB(r)}</b><span class="sm">${a.type=="NONE"?"No waiter online":r.at.length+" attempts fail"}</span></div><div class="sm" style="margin:6px 0">${r.at.map(chip).join("")||"No attempts"}</div>
- <div class="row"><span><select id="as${a.id}" aria-label="Choose waiter"><option value="">Choose waiter</option>${W.filter(w=>w.on).map(w=>`<option value="${w.id}">${w.n} (load ${load(w)})</option>`).join("")}</select> <button class="b p" data-act="asg" data-id="${a.id}">Assign</button></span><button class="b" data-act="res" data-id="${a.id}">Resolve</button></div></div>`}).join("");
- return `<div class="kpis">${k("Waiters online",on+" / "+W.length)}${k("Open requests",orq.length)}${k("Alerts",oa.length,oa.length?"red":"")}${k("Active orders",ord.length)}${k("Missed today",W.reduce((s,w)=>s+w.miss,0))}${k("Avg accept time",S.ac.length?Math.round(S.ac.reduce((a,b)=>a+b,0)/S.ac.length/1000)+"s":"-")}</div>
- ${al||`<div class="panel mut">No open alerts.</div>`}
- <div class="panel"><h3 style="margin-top:0">Live Requests</h3><div class="sc"><table><tr><th>ID</th><th>Tbl</th><th>Service</th><th>Status</th><th>Attempts</th><th>Age</th></tr>${R.slice(-8).reverse().map(r=>`<tr><td>#${r.id}</td><td>${r.table}</td><td>${LB(r)}</td><td><span class="chip ${r.status}">${r.status}</span></td><td>${r.at.map(chip).join("")}${r.rsn?`<span class="mut sm">resend ${r.rsn}</span>`:""}</td><td data-age="${r.t0}">${fmt(S.t-r.t0)}</td></tr>`).join("")||`<tr><td colspan="6" class="mut">No requests yet.</td></tr>`}</table></div></div>
- <div class="panel"><h3 style="margin-top:0">Staff</h3><div class="mut sm" style="margin-bottom:6px">The next request goes to the waiter with the least work today (accepted today + requests waiting for an answer).</div><div class="sc"><table><tr><th>Waiter</th><th>Status</th><th>Push</th><th>Load</th><th>Work today</th><th>Missed</th><th>Reject</th></tr>${W.map(w=>`<tr><td><b>${w.n}</b></td><td><button class="b" data-act="tog" data-id="${w.id}" style="min-height:30px;padding:2px 9px">${w.on?"Online":"Offline"}</button></td><td><button class="b" data-act="push" data-id="${w.id}" style="min-height:30px;padding:2px 9px;color:${w.push?"var(--acc)":"var(--red)"}">${w.push?"ON":"OFF"}</button></td><td>${load(w)}</td><td>${w.acc}</td><td>${w.miss}</td><td>${w.rej}</td></tr>`).join("")}</table></div></div>
- <div class="panel"><h3 style="margin-top:0">Tables (23, conceptual layout)</h3><div class="grid23">${Array.from({length:23},(_,i)=>{const n=i+1,c=A.some(a=>a.open&&R.find(r=>r.id==a.r).table==n)?"alert":R.some(r=>r.table==n&&["PENDING","ASSIGNED","ESCALATED"].includes(r.status))?"wait":R.some(r=>r.table==n&&r.status=="ACCEPTED")?"acc":"";return `<button class="tb ${c} ${S.tsel==n?"sel":""}" data-act="tbl" data-id="${n}" aria-label="Table ${n}">${n}</button>`}).join("")}</div>${S.tsel?tdet():""}<div class="mut sm" style="margin-top:6px">Red = alert, blue = waiting, green = accepted. 1-18 Indoor, 19-23 Outdoor. Primary: ${Object.entries(P).map(([t,w])=>"T"+t+"="+W[w].n).join(", ")||"none"}</div></div>
- <div class="panel"><h3 style="margin-top:0">Orders</h3>${O.length?O.slice().reverse().map(o=>`<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><span>#${o.id} Table ${o.table}: ${o.items}</span><span><span class="chip ${o.s=="CONFIRMED"?"WAITING":o.s=="PREPARING"?"ESCALATED":o.s}">${o.s}</span> ${o.s!="SERVED"?`<button class="b" data-act="adv" data-id="${o.id}" style="min-height:28px;padding:1px 8px">Next &rarr;</button>`:""}</span></div>`).join(""):`<span class="mut">Orders placed from the customer menu will appear here.</span>`}</div>
- <div class="panel"><h3 style="margin-top:0">Audit log</h3><div class="log">${L.join("<br>")||"Nothing yet."}</div></div>`}
-function fair(){W.forEach(w=>w.on=true);P={};S.plan=["accept"];S.tab="c3";const ks=[["water","Cold"],["salad",""],["spt","Salt"],["bill","Cash"],["cutlery","Plate"],["call",""]];
- for(let i=1;i<=10;i++){S.table=i;req(ks[i%6][0],ks[i%6][1])}S.table=7;say("10 requests at once, 5 waiters: each request went to the waiter with the least work so far. Check the Staff table on the Manager screen: everyone gets an equal share (2 each).","c3")}
-function demo(k){document.getElementById("sp").value="10";init();S.sp=10;S.tab="c1";S.scan=true;S.wl=true;if(k=="f")return fair();if(k=="p"){P={};S.table=1;S.plan=[["accept"],["ignore","accept"]];S.pb=S.rid;S.queue=[()=>{S.table=1;req("salad")}];req("water","Cold");return}if(k=="o")W.forEach(w=>w.on=false);S.plan={n:["accept"],i:["ignore","ignore","ignore"],r:["reject","accept"],o:[]}[k];req("water","Cold")}
-function jr(){const r=R[R.length-1];if(!r)return `<b>Request journey</b><div class="mut sm">No requests yet. Here you will see which waiter has the request and how much time is left.</div>`;
- const L={WAITING:"Waiting for response",MISSED:"No response",REJECTED:"Rejected",ACCEPTED:"Accepted",CANCELLED:"Went offline"},ok=["ACCEPTED","CLOSED"].includes(r.status),fl=r.status=="FAILED";
- let h=`<div class="jn ACCEPTED"><b>Customer</b><br>Table ${r.table}: ${LB(r)}</div>`;const n=(ok||fl)?r.at.length:Math.max(3,r.at.length);
- for(let i=0;i<n;i++){const a=r.at[i];h+=`<span class="arrow">&rarr;</span>`+(a?`<div class="jn ${a.st}"><b>${W[a.w].n}</b> <span class="sm">(${a.secs}s)</span><br>${L[a.st]}${a.e!=null?` &middot; ${Math.round((a.e-a.t)/1000)}s`:""}${a.st=="WAITING"&&r.cur?`<br><b data-cd="${r.cur.dl}">${fmt(r.cur.dl-S.t)}</b> left<div class="pb"><i data-pb="${r.cur.dl}|${a.secs}" style="width:${Math.min(100,100-(r.cur.dl-S.t)/(a.secs*10))}%"></i></div>`:""}</div>`:`<div class="jn" style="opacity:.5">Next waiter<br><span class="sm">if needed</span></div>`)}
- h+=`<span class="arrow">&rarr;</span><div class="jn ${ok?"ACCEPTED":fl?"FAILED":""}" style="${ok||fl?"":"opacity:.5"}"><b>${ok?"Work started":fl?"Manager alert":"Manager"}</b><br>${ok?"Waiter at the table":fl?"HIGH PRIORITY":"Alert after 3 failures"}</div>`;
- return `<b>Request #${r.id} ka safar</b> <span class="mut sm">(Table ${r.table}, ${LB(r)}. one waiter at a time)</span><div class="jr">${h}</div>`}
-
-const FLOWS=[["F1 Customer: from QR scan to request",[["S:QR scan","->send token","Y:Server checks token","->","D:Valid?","->No","X:Invalid / expired QR screen"],["D:Valid?","->Yes","S:Welcome, Table N","->","S:Quick Service home","->choose a service","A:Choose: Water (Cold/Normal/Hot), Chutney, Salt/Pepper/Tissue, Bill (Cash/Online), Plate/Spoon/Bowl/Glass, Call Waiter, or type your own","->","Y:Request created (duplicate check)","->","S:Request sent"]]],
-["F2 Request routing (shared system)",[["Y:Request created","->","D:Waiter online?","->No","M:Immediate HIGH alert (no waiter online)"],["D:Waiter online?","->Yes: 1st waiter 45s (primary if online, otherwise the one with the least work)","Y:Assign one waiter","->","D:Accept or Reject?","->Accept","OK:Customer: a waiter is on the way"],["D:Accept or Reject?","->Reject (reason)","Y:Next waiter immediately"],["Y:Assign one waiter","->deadline passed","T:Assignment expires (missed)","->","Y:2nd waiter 30s, then 3rd 30s (least work so far)","->","D:3 attempts failed?","->Yes","M:HIGH PRIORITY manager alert","->","A:Manager assigns or resolves"],["M:HIGH PRIORITY manager alert","->","X:Customer: manager has been informed"]]],
-["F3 Customer: resend and auto-close",[["S:Request sent","->after 60 sec","A:Resend (max 3)","->","Y:New cycle"],["OK:Waiter accepted","->10 min","T:Auto-close"]]],
-["F4 Customer: menu and order",[["S:View Menu","->","S:Categories + items","->","A:Choose quantity","->","S:Cart","->","A:Place order","->","OK:Order confirmed","->","M:Manager monitors","->Advance","S:Preparing, Ready, Served"],["S:Unavailable item","->","X:Cannot be added"]]],
-["F5 Waiter",[["S:Login (phone + PIN)","->","S:Home OFFLINE","->go ONLINE","S:Home ONLINE","->alert arrives","S:Full-screen request + timer","->","D:Accept or Reject?","->Accept","S:Active requests"],["D:Accept or Reject?","->Reject","S:Reason: Busy / At another table / On break / Other"],["S:Full-screen request + timer","->time runs out","T:Request missed, moves to next waiter"],["S:Home ONLINE","->press OFFLINE","D:Open requests?","->Yes","S:Warning, requests re-routed"]]],
-["F6 Manager",[["S:Dashboard KPIs","->","M:Alert panel","->","A:Assign waiter","->","Y:New 30s attempt"],["M:Alert panel","->","A:Resolve","->","OK:Alert closed"],["S:Dashboard KPIs","->","S:Staff: online/offline, push","S:Live requests","S:23-table map","S:Orders + Advance","S:Audit log"]]]];
-const INV=[["Customer",["QR landing / scan","Invalid or expired QR","Welcome, Table N","Quick Service home (6 buttons + free-text box)","Sub-options: Water Cold/Normal/Hot, Bill Cash/Online, Salt/Pepper/Tissue, Plate/Spoon/Bowl/Glass","Menu","Cart","Order submitted + status","Request sent","Searching for waiter","Waiter coming","Taking longer, manager informed","Resend (60 s cooldown, max 3)","Connection lost","Duplicate / in-progress feedback"]],["Waiter",["Staff login (phone + PIN, error)","Online / Offline + notification status","Full-screen incoming request + countdown","Accept","Reject with 4 reasons","Active requests","Today: accepted / missed / rejected","Request missed notice","Offline warning with open requests"]],["Manager",["KPI cards (6)","HIGH PRIORITY alert + Assign + Resolve","Live requests + attempt history","Staff: status, push, workload, counts","23-table map + table details","Orders + Advance","Audit log"]]];
-function flowV(){const T={S:"Screen",A:"User action",Y:"System",D:"Decision",OK:"Success",X:"Failure",T:"Timeout",M:"Manager"};
- const row=r=>`<div class="fr">`+r.map(t=>t.startsWith("->")?`<span class="fa"><b>${t.slice(2)}</b>&rarr;</span>`:`<span class="fn ${t.split(":")[0]}">${t.slice(t.indexOf(":")+1)}</span>`).join("")+`</div>`;
- return `<div class="panel"><h3>Wireflow: Customer, Waiter, Manager and Shared system</h3><div class="mut sm">This is the design map of the simulation, not a real backend. Routing is sequential: 1st waiter 45s, 2nd 30s, 3rd 30s, then straight to the manager. Online waiters only, one at a time, never broadcast.</div><div class="lg" style="margin-top:8px">${Object.entries(T).map(([k,v])=>`<span class="fn ${k}">${v}</span>`).join("")}</div></div>`+FLOWS.map(f=>`<div class="panel"><h3>${f[0]}</h3>${f[1].map(row).join("")}</div>`).join("")+`<div class="panel"><h3>Screen inventory</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">${INV.map(i=>`<div><b>${i[0]} (${i[1].length})</b><ul style="margin:6px 0;padding-left:18px">${i[1].map(x=>`<li>${x}</li>`).join("")}</ul></div>`).join("")}</div></div>`}
-function render(){D=false;document.getElementById("vdemo").style.display=S.view=="demo"?"":"none";const vf=document.getElementById("vflow");vf.style.display=S.view=="flow"?"":"none";if(S.view=="flow"&&!vf.dataset.d){vf.innerHTML=flowV();vf.dataset.d=1}
- document.getElementById("vb1").classList.toggle("on",S.view=="demo");document.getElementById("vb2").classList.toggle("on",S.view=="flow");document.getElementById("netb").textContent="Network: "+(S.net?"ON":"OFF (connection lost demo)");
-const y=[["cust",cust],["wait",wait],["mgr",mgr]];
- const ae=document.activeElement,keep=ae&&ae.id=="ctext";y.forEach(([id,f])=>{const e=document.getElementById(id),sc=e.scrollTop;e.innerHTML=f();e.scrollTop=sc});if(keep){const e=document.getElementById("ctext");if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}}
- ["c1","c2","c3"].forEach(c=>{const e=document.getElementById(c);e.classList.toggle("show",S.tab==c);e.classList.toggle("look",S.look==c)});document.getElementById("say").innerHTML="<b>What is happening now:</b> "+S.say;document.getElementById("jr").innerHTML=jr();
- document.getElementById("tabs").innerHTML=[["c1","Customer"],["c2","Waiter"],["c3","Manager"]].map(t=>`<button data-act="tab" data-id="${t[0]}" class="${S.tab==t[0]?"on":""}">${t[1]}${S.look==t[0]?" \u25cf":""}</button>`).join("")}
-document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(!b||b.disabled)return;const a=b.dataset.act,id=+b.dataset.id,i=+b.dataset.i;
- if(["req","acc","rej","rjgo","opt","sendm","sendc"].includes(a))S.plan=null;if(a=="demo")demo(b.dataset.k);else if(a=="req")req(b.dataset.k);else if(a=="resend")resend(id);else if(a=="done"){const r=R.find(x=>x.id==id);r.status="CLOSED";log(`#${id} customer: item received, request closed`);say("Customer confirmed receipt, request closed.","c1")}
- else if(a=="acc")accept(S.sel,id);else if(a=="rej")reject(S.sel,id);else if(a=="tog")toggle(id);else if(a=="sel")S.sel=id;
- else if(a=="push"){W[id].push=!W[id].push;log(`${W[id].n} push ${W[id].push?"ON":"OFF"}`)}
- else if(a=="asg")asg(id);else if(a=="res")resolve(id);else if(a=="menu")S.cv="menu";else if(a=="home")S.cv="home";
- else if(a=="q+")S.cart[i]=(S.cart[i]||0)+1;else if(a=="q-")S.cart[i]=Math.max(0,(S.cart[i]||0)-1);
- else if(a=="order"){const it=MENU.map((m,j)=>S.cart[j]?S.cart[j]+" "+m[0]:"").filter(Boolean).join(", ");O.push({id:++S.oid,table:S.table,items:it,s:"PENDING"});S.cart={};S.cv="home";toast("Order sent.");say("The order appeared on the Manager dashboard. The manager presses Next to advance its status (Preparing, Ready, Served).","c3");log(`Order #${S.oid} Table ${S.table}: ${it}`)}
- else if(a=="adv"){const o=O.find(x=>x.id==id);o.s=OS[OS.indexOf(o.s)+1]}
- else if(a=="scan"){S.scan=true;say("The customer scanned the QR code. The table was detected automatically and a session was created.","c1")}else if(a=="view")S.view=b.dataset.id;else if(a=="wlogin"){S.wl=true;S.wbad=false}else if(a=="wbad")S.wbad=true;else if(a=="togw"){const ww=W[id],nn=R.filter(r=>(r.status=="ACCEPTED"&&r.by==id)||(r.cur&&r.cur.w==id)).length;if(ww.on&&nn)S.offc=id;else toggle(id)}else if(a=="offok"){S.offc=null;toggle(S.sel)}else if(a=="offx")S.offc=null;else if(a=="rjopen")S.rj=id;else if(a=="rjx")S.rj=null;else if(a=="rjgo"){reject(S.sel,id,b.dataset.r);S.rj=null}else if(a=="no"){const r=R.find(x=>x.id==id);r.rs=true;resend(id)}else if(a=="net"){S.net=!S.net;log("Network "+(S.net?"ON":"OFF"))}else if(a=="badqr")S.qrbad=true;else if(a=="qrok")S.qrbad=false;else if(a=="tbl")S.tsel=id;else if(a=="grp")S.open=S.open==b.dataset.k?null:b.dataset.k;else if(a=="opt"){S.open=null;req(b.dataset.k,b.dataset.v)}else if(a=="pick"){const k=b.dataset.k,v=b.dataset.v,p=S.pick[k]||[];S.pick[k]=p.includes(v)?p.filter(x=>x!=v):[...p,v]}else if(a=="sendm"){const k=b.dataset.k,p=S.pick[k]||[];if(p.length){req(k,p.join(", "));S.pick[k]=[];S.open=null}}else if(a=="sendc"){const t=S.ctext.trim();if(!t)toast("Please type what you need first.");else{req("custom",t);S.ctext=""}}else if(a=="tabs"){S.tabs=!S.tabs;fit()}else if(a=="tab")S.tab=b.dataset.id;else if(a=="reset"){init()}
- D=true;render()});
-document.addEventListener("input",e=>{if(e.target.id=="ctext")S.ctext=e.target.value});
-document.addEventListener("change",e=>{if(e.target.dataset.sel=="table"){S.table=+e.target.value;D=true;render()}if(e.target.id=="sp")S.sp=+e.target.value});
-function fit(){const w=innerWidth,narrow=w<1300,tm=narrow&&typeof S!="undefined"&&S&&S.tabs,root=document.documentElement,zm=(narrow&&!tm)?w/1320:1,H=innerHeight/zm;
- root.classList.toggle("tabs",!!tm);document.body.style.zoom=zm;
- const z=Math.max(.5,Math.min(1,(H-90)/864,tm?(w-24)/410:((narrow?1320:w)-600)/820));root.style.setProperty("--z",z);
- const tb=document.getElementById("tabsb");if(tb){tb.style.display=narrow?"":"none";tb.textContent=tm?"Full view":"Tabs view"}}
-addEventListener("resize",fit);fit();init();render();setInterval(tick,250);
-</script></body></html>
+  <div id="vdemo">
+    <div class="demo">
+      <b>Run demo (auto):</b>
+      <button class="b" data-act="demo" data-k="n">1. Normal: Rahul accepts</button>
+      <button class="b" data-act="demo" data-k="r">2. Reject, then accept</button>
+      <button class="b" data-act="demo" data-k="i">3. Nobody accepts</button>
+      <button class="b" data-act="demo" data-k="o">4. No waiter online</button>
+      <button class="b" data-act="demo" data-k="f">5. Fair share (10 requests)</button>
+      <button class="b" data-act="demo" data-k="p">6. Primary waiter memory (Table 1)</button>
+      <button class="b" id="tabsb" data-act="tabs" style="display:none">Tabs view</button>
+      <button class="b" id="netb" data-act="net">Network: ON</button>
+      <span class="mut sm">Simulation only — not a live backend.</span>
+    </div>
+    <div class="say" id="say" aria-live="polite"></div>
+    <div class="panel" id="jr" style="margin:12px 20px 0"></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="wrap">
+      <section class="col" id="c1">
+        <h2>Customer phone</h2>
+        <div class="fit">
+          <div class="iph">
+            <div class="scrn">
+              <div class="isl"></div>
+              <div class="sb"><span>9:41</span><span>5G ●●●</span></div>
+              <div class="scr" id="cust"></div>
+              <div class="hb"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="col" id="c2">
+        <h2>Waiter phone</h2>
+        <div class="fit">
+          <div class="iph">
+            <div class="scrn">
+              <div class="isl"></div>
+              <div class="sb"><span>9:41</span><span>5G ●●●</span></div>
+              <div class="scr" id="wait"></div>
+              <div class="hb"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="col" id="c3">
+        <h2>Manager dashboard</h2>
+        <div id="mgr"></div>
+      </section>
+    </div>
+  </div>
+  <div id="vflow" class="fw" style="display:none"></div>
+  <script src="app.js"></script>
+</body>
+</html>
