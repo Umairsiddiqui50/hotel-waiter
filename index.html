@@ -3,75 +3,81 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Smart Table Service</title>
+  <title>Smart Table Service — Restaurant Website</title>
+  <meta name="description" content="Scan your table QR code to browse the menu and request table service. Staff workspaces for waiters and restaurant admins.">
   <link rel="stylesheet" href="design.css">
 </head>
-<body>
-  <header class="app-header">
-    <div class="brand">
-      <h1>Smart Table Service</h1>
-      <p id="app-subtitle">Professional restaurant service website. Login, order, and payment APIs are pending integration.</p>
-    </div>
-    <nav class="main-nav" aria-label="Website workspaces">
-      <button id="route-customer" data-act="route" data-id="customer" class="on">Customer</button>
-      <button id="route-waiter" data-act="route" data-id="waiter">Waiter</button>
-      <button id="route-admin" data-act="route" data-id="admin">Admin</button>
-      <button id="route-dev" data-act="route" data-id="dev">Development</button>
-      <button id="route-wireflow" data-act="route" data-id="wireflow">Wireflow</button>
-    </nav>
-    <div class="header-tools">
-      <label class="speed-control">Speed
-        <select id="sp" aria-label="Simulation speed">
-          <option value="1">1x (real: 45 s)</option>
-          <option value="3" selected>3x (45 s = 15 s)</option>
-          <option value="10">10x (45 s = 4.5 s)</option>
-        </select>
-      </label>
-      <button data-act="reset">Reset</button>
-      <button id="netb" data-act="net">Network: ON</button>
+<body data-route="customer">
+  <header class="site-header">
+    <div class="site-header-inner">
+      <a class="brand" href="#/customer" data-act="route" data-id="customer">
+        <span class="brand-mark" aria-hidden="true">🍽</span>
+        <span class="brand-text">
+          <strong>Smart Table Service</strong>
+          <small id="app-subtitle">Grand Bistro &amp; Cafe · table service website</small>
+        </span>
+      </a>
+      <nav class="site-nav" aria-label="Website workspaces">
+        <a id="route-customer" href="#/customer" data-act="route" data-id="customer">Customer</a>
+        <a id="route-waiter" href="#/waiter/login" data-act="route" data-id="waiter">Waiter</a>
+        <a id="route-admin" href="#/admin/login" data-act="route" data-id="admin">Admin</a>
+        <a id="route-dev" href="#/dev" data-act="route" data-id="dev">Development</a>
+      </nav>
     </div>
   </header>
 
   <div id="app-shell">
-    <section class="demo-panel" id="demo-panel" aria-label="Demo controls">
-      <div class="demo-actions">
-        <b>Run demo (auto):</b>
-        <button class="b" data-act="demo" data-k="n">1. Normal: Rahul accepts</button>
-        <button class="b" data-act="demo" data-k="r">2. Reject, then accept</button>
-        <button class="b" data-act="demo" data-k="i">3. Nobody accepts</button>
-        <button class="b" data-act="demo" data-k="o">4. No waiter online</button>
-        <button class="b" data-act="demo" data-k="f">5. Fair share (10 requests)</button>
-        <button class="b" data-act="demo" data-k="p">6. Primary waiter memory (Table 1)</button>
-      </div>
-      <div class="demo-note">Development only: demo navigation and demo data. Real login, orders, payments, and staff management are not implemented.</div>
-      <div class="demo-status" id="say" aria-live="polite"></div>
-      <div class="journey-panel panel" id="jr"></div>
-    </section>
-
     <main class="app-views">
-      <section class="view-panel show" id="c1" data-view="customer">
-        <div class="panel">
-          <h2>Customer Website</h2>
-          <div class="surface" id="cust"></div>
-        </div>
+      <section class="view-panel" id="c1" data-view="customer" aria-label="Customer website">
+        <div class="surface" id="cust"></div>
       </section>
 
-      <section class="view-panel" id="c2" data-view="waiter">
-        <div class="panel">
-          <h2>Waiter Dashboard</h2>
-          <div class="surface" id="wait"></div>
-        </div>
+      <section class="view-panel" id="c2" data-view="waiter" aria-label="Waiter workspace">
+        <div class="surface" id="wait"></div>
       </section>
 
-      <section class="view-panel" id="c3" data-view="admin">
+      <section class="view-panel" id="c3" data-view="admin" aria-label="Admin workspace">
+        <div class="surface" id="mgr"></div>
+      </section>
+
+      <section class="view-panel" id="cdev" data-view="dev" aria-label="Development workspace">
         <div class="panel">
-          <h2>Admin Dashboard</h2>
-          <div class="surface" id="mgr"></div>
+          <h2>Development workspace</h2>
+          <p class="mut">Local simulation, demo scenarios, routing-journey view, and wireflow map. Not part of the customer-facing website.</p>
+          <div class="demo-panel" id="demo-panel" aria-label="Demo controls">
+            <div class="header-tools" id="dev-tools">
+              <label class="speed-control">Speed
+                <select id="sp" aria-label="Simulation speed">
+                  <option value="1">1x (real: 45 s)</option>
+                  <option value="3" selected>3x (45 s = 15 s)</option>
+                  <option value="10">10x (45 s = 4.5 s)</option>
+                </select>
+              </label>
+              <button data-act="reset">Reset</button>
+              <button id="netb" data-act="net">Network: ON</button>
+            </div>
+            <div class="demo-actions">
+              <b>Run demo (auto):</b>
+              <button class="b" data-act="demo" data-k="n">1. Normal: Rahul accepts</button>
+              <button class="b" data-act="demo" data-k="r">2. Reject, then accept</button>
+              <button class="b" data-act="demo" data-k="i">3. Nobody accepts</button>
+              <button class="b" data-act="demo" data-k="o">4. No waiter online</button>
+              <button class="b" data-act="demo" data-k="f">5. Fair share (10 requests)</button>
+              <button class="b" data-act="demo" data-k="p">6. Primary waiter memory (Table 1)</button>
+            </div>
+            <div class="demo-note">Development only: demo navigation and demo data. Real login, orders, payments, and staff management are not implemented.</div>
+            <div class="demo-status" id="say" aria-live="polite"></div>
+            <div class="journey-panel panel" id="jr"></div>
+          </div>
+          <aside class="wireflow-drawer" id="vflow"></aside>
         </div>
       </section>
     </main>
 
-    <aside class="wireflow-drawer" id="vflow" style="display:none"></aside>
+    <footer class="site-footer">
+      <span>Smart Table Service · demo website.</span>
+      <span id="integration-note">Service requests use the live backend API. Login, ordering, and payment APIs are pending integration.</span>
+    </footer>
   </div>
 
   <div id="tabs" class="hidden-tab-target" aria-hidden="true"></div>
