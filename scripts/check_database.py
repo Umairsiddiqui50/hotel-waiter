@@ -48,8 +48,14 @@ async def check_database():
 
     try:
         async with engine.connect() as conn:
-            result = await conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
+            if engine.dialect.name == "sqlite":
+                result = await conn.execute(text("SELECT name FROM sqlite_master WHERE type='table';"))
+            elif engine.dialect.name == "mysql":
+                result = await conn.execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE();"))
+            else:
+                result = await conn.execute(text("SELECT table_name FROM information_schema.tables;"))
             existing_tables = [row[0] for row in result.fetchall()]
+
 
         missing = [t for t in expected_tables if t not in existing_tables]
         if missing:
