@@ -38,7 +38,7 @@ async def _get_manager(db: AsyncSession, manager_id: uuid.UUID) -> StaffUser:
     return manager
 
 
-async def _ensure_utc(dt: Optional[datetime]) -> Optional[datetime]:
+def _ensure_utc(dt: Optional[datetime]) -> Optional[datetime]:
     if dt is None:
         return None
     if dt.tzinfo is None:

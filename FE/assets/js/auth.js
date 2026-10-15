@@ -28,16 +28,18 @@ export const authService = {
 
   async loginStaff(username, password) {
     let res;
+    // Backend expects 'identifier' and 'password'
+    const payload = { identifier: username, password };
     try {
       res = await apiFetch('/auth/login', {
         method: 'POST',
-        body: { username, password }
+        body: payload
       });
     } catch (err) {
       if (err.status === 404) {
         res = await apiFetch('/auth/staff/login', {
           method: 'POST',
-          body: { username, password }
+          body: payload
         });
       } else {
         throw err;
@@ -45,8 +47,16 @@ export const authService = {
     }
 
     if (res && res.access_token) {
-      this.setStaffSession(res.access_token, res.user);
-      return res;
+      const user = res.user || {
+        id: res.user_id,
+        role: res.role,
+        name: res.name,
+        email: res.email,
+        is_online: res.is_online,
+        restaurant_id: res.restaurant_id
+      };
+      this.setStaffSession(res.access_token, user);
+      return { ...res, user };
     }
     throw new ApiError(400, 'Invalid login response');
   },
