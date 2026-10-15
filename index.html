@@ -7,74 +7,74 @@
   <link rel="stylesheet" href="design.css">
 </head>
 <body>
-  <div class="top">
-    <h1>Smart Table Service
-      <small>Live simulation · Customer, waiter and manager share one routing system</small>
-    </h1>
-    <div class="seg" role="group" aria-label="View">
-      <button id="vb1" data-act="view" data-id="demo" class="on">Live demo</button>
-      <button id="vb2" data-act="view" data-id="flow">Wireflow</button>
+  <header class="app-header">
+    <div class="brand">
+      <h1>Smart Table Service</h1>
+      <p id="app-subtitle">Professional restaurant service website. Login, order, and payment APIs are pending integration.</p>
     </div>
-    <label>Speed
-      <select id="sp" aria-label="Simulation speed">
-        <option value="1">1× (real: 45 s)</option>
-        <option value="3" selected>3× (45 s = 15 s)</option>
-        <option value="10">10× (45 s = 4.5 s)</option>
-      </select>
-    </label>
-    <button data-act="reset">Reset</button>
+    <nav class="main-nav" aria-label="Website workspaces">
+      <button id="route-customer" data-act="route" data-id="customer" class="on">Customer</button>
+      <button id="route-waiter" data-act="route" data-id="waiter">Waiter</button>
+      <button id="route-admin" data-act="route" data-id="admin">Admin</button>
+      <button id="route-dev" data-act="route" data-id="dev">Development</button>
+      <button id="route-wireflow" data-act="route" data-id="wireflow">Wireflow</button>
+    </nav>
+    <div class="header-tools">
+      <label class="speed-control">Speed
+        <select id="sp" aria-label="Simulation speed">
+          <option value="1">1x (real: 45 s)</option>
+          <option value="3" selected>3x (45 s = 15 s)</option>
+          <option value="10">10x (45 s = 4.5 s)</option>
+        </select>
+      </label>
+      <button data-act="reset">Reset</button>
+      <button id="netb" data-act="net">Network: ON</button>
+    </div>
+  </header>
+
+  <div id="app-shell">
+    <section class="demo-panel" id="demo-panel" aria-label="Demo controls">
+      <div class="demo-actions">
+        <b>Run demo (auto):</b>
+        <button class="b" data-act="demo" data-k="n">1. Normal: Rahul accepts</button>
+        <button class="b" data-act="demo" data-k="r">2. Reject, then accept</button>
+        <button class="b" data-act="demo" data-k="i">3. Nobody accepts</button>
+        <button class="b" data-act="demo" data-k="o">4. No waiter online</button>
+        <button class="b" data-act="demo" data-k="f">5. Fair share (10 requests)</button>
+        <button class="b" data-act="demo" data-k="p">6. Primary waiter memory (Table 1)</button>
+      </div>
+      <div class="demo-note">Development only: demo navigation and demo data. Real login, orders, payments, and staff management are not implemented.</div>
+      <div class="demo-status" id="say" aria-live="polite"></div>
+      <div class="journey-panel panel" id="jr"></div>
+    </section>
+
+    <main class="app-views">
+      <section class="view-panel show" id="c1" data-view="customer">
+        <div class="panel">
+          <h2>Customer Website</h2>
+          <div class="surface" id="cust"></div>
+        </div>
+      </section>
+
+      <section class="view-panel" id="c2" data-view="waiter">
+        <div class="panel">
+          <h2>Waiter Dashboard</h2>
+          <div class="surface" id="wait"></div>
+        </div>
+      </section>
+
+      <section class="view-panel" id="c3" data-view="admin">
+        <div class="panel">
+          <h2>Admin Dashboard</h2>
+          <div class="surface" id="mgr"></div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="wireflow-drawer" id="vflow" style="display:none"></aside>
   </div>
 
-  <div id="vdemo">
-    <div class="demo">
-      <b>Run demo (auto):</b>
-      <button class="b" data-act="demo" data-k="n">1. Normal: Rahul accepts</button>
-      <button class="b" data-act="demo" data-k="r">2. Reject, then accept</button>
-      <button class="b" data-act="demo" data-k="i">3. Nobody accepts</button>
-      <button class="b" data-act="demo" data-k="o">4. No waiter online</button>
-      <button class="b" data-act="demo" data-k="f">5. Fair share (10 requests)</button>
-      <button class="b" data-act="demo" data-k="p">6. Primary waiter memory (Table 1)</button>
-      <button class="b" id="tabsb" data-act="tabs" style="display:none">Tabs view</button>
-      <button class="b" id="netb" data-act="net">Network: ON</button>
-      <span class="mut sm">Simulation only — not a live backend.</span>
-    </div>
-    <div class="say" id="say" aria-live="polite"></div>
-    <div class="panel" id="jr" style="margin:12px 20px 0"></div>
-    <div class="tabs" id="tabs"></div>
-    <div class="wrap">
-      <section class="col" id="c1">
-        <h2>Customer phone</h2>
-        <div class="fit">
-          <div class="iph">
-            <div class="scrn">
-              <div class="isl"></div>
-              <div class="sb"><span>9:41</span><span>5G ●●●</span></div>
-              <div class="scr" id="cust"></div>
-              <div class="hb"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section class="col" id="c2">
-        <h2>Waiter phone</h2>
-        <div class="fit">
-          <div class="iph">
-            <div class="scrn">
-              <div class="isl"></div>
-              <div class="sb"><span>9:41</span><span>5G ●●●</span></div>
-              <div class="scr" id="wait"></div>
-              <div class="hb"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section class="col" id="c3">
-        <h2>Manager dashboard</h2>
-        <div id="mgr"></div>
-      </section>
-    </div>
-  </div>
-  <div id="vflow" class="fw" style="display:none"></div>
+  <div id="tabs" class="hidden-tab-target" aria-hidden="true"></div>
   <script src="app.js"></script>
 </body>
 </html>

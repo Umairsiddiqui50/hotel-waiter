@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Smart Table Service</title>
+  <link rel="stylesheet" href="design.css">
+</head>
+<body>
+  <div class="top">
+    <h1>Smart Table Service
+      <small>Live simulation · Customer, waiter and manager share one routing system</small>
+    </h1>
+    <div class="seg" role="group" aria-label="View">
+      <button id="vb1" data-act="view" data-id="demo" class="on">Live demo</button>
+      <button id="vb2" data-act="view" data-id="flow">Wireflow</button>
+    </div>
+    <label>Speed
+      <select id="sp" aria-label="Simulation speed">
+        <option value="1">1× (real: 45 s)</option>
+        <option value="3" selected>3× (45 s = 15 s)</option>
+        <option value="10">10× (45 s = 4.5 s)</option>
+      </select>
+    </label>
+    <button data-act="reset">Reset</button>
+  </div>
+
+  <div id="vdemo">
+    <div class="demo">
+      <b>Run demo (auto):</b>
+      <button class="b" data-act="demo" data-k="n">1. Normal: Rahul accepts</button>
+      <button class="b" data-act="demo" data-k="r">2. Reject, then accept</button>
+      <button class="b" data-act="demo" data-k="i">3. Nobody accepts</button>
+      <button class="b" data-act="demo" data-k="o">4. No waiter online</button>
+      <button class="b" data-act="demo" data-k="f">5. Fair share (10 requests)</button>
+      <button class="b" data-act="demo" data-k="p">6. Primary waiter memory (Table 1)</button>
+      <button class="b" id="tabsb" data-act="tabs" style="display:none">Tabs view</button>
+      <button class="b" id="netb" data-act="net">Network: ON</button>
+      <span class="mut sm">Simulation only — not a live backend.</span>
+    </div>
+    <div class="say" id="say" aria-live="polite"></div>
+    <div class="panel" id="jr" style="margin:12px 20px 0"></div>
+    <div class="tabs" id="tabs"></div>
+    <div class="wrap">
+      <section class="col" id="c1">
+        <h2>Customer phone</h2>
+        <div class="fit">
+          <div class="iph">
+            <div class="scrn">
+              <div class="isl"></div>
+              <div class="sb"><span>9:41</span><span>5G ●●●</span></div>
+              <div class="scr" id="cust"></div>
+              <div class="hb"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="col" id="c2">
+        <h2>Waiter phone</h2>
+        <div class="fit">
+          <div class="iph">
+            <div class="scrn">
+              <div class="isl"></div>
+              <div class="sb"><span>9:41</span><span>5G ●●●</span></div>
+              <div class="scr" id="wait"></div>
+              <div class="hb"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="col" id="c3">
+        <h2>Manager dashboard</h2>
+        <div id="mgr"></div>
+      </section>
+    </div>
+  </div>
+  <div id="vflow" class="fw" style="display:none"></div>
+  <script src="app.js"></script>
+</body>
+</html>

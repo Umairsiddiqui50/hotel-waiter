@@ -17,8 +17,61 @@ const OS=["PENDING","CONFIRMED","PREPARING","READY","SERVED"];
 let W,R,A,O,P,L,S,D=true;
 const LB=r=>TN[r.k]+(r.d?" ("+esc(r.d)+")":"");
 const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")};
+const API_BASE = new URLSearchParams(location.search).get("apiBase") || "http://127.0.0.1:8000/api/v1";
+function apiUrl(path){return API_BASE.replace(/\/$/, "") + (String(path).startsWith("/") ? path : "/" + path);}
+class ApiError extends Error{constructor(status, detail){super(detail || ("Request failed with status " + status));this.name="ApiError";this.status=status;this.detail=detail;}}
+async function apiFetch(path, options){
+  options = options || {};
+  const response = await fetch(apiUrl(path), {
+    method: options.method || "GET",
+    headers: Object.assign({"Accept":"application/json", "Content-Type":"application/json"}, options.headers || {}),
+    body: options.body === undefined || options.body === null ? undefined : (typeof options.body === "string" ? options.body : JSON.stringify(options.body)),
+  });
+  let data = null;
+  const text = await response.text();
+  if(text){try{data = JSON.parse(text);}catch{data = text;}}
+  if(!response.ok){
+    const detail = (data && typeof data === "object" && data.detail) ? data.detail : ((response.status >= 500) ? "The backend service request failed." : "The request could not be completed.");
+    throw new ApiError(response.status, detail);
+  }
+  return data;
+}
+async function refreshBackendWaiterRoster(){
+  if(!S.net){S.backendRosterError = "Backend is offline in demo mode."; D = true; render(); return;}
+  S.backendRosterLoading = true;
+  S.backendRosterError = "";
+  D = true; render();
+  try{
+    const waiters = await apiFetch("/waiters");
+    const byName = new Map((waiters || []).map(w => [String(w.name || "").toLowerCase(), w]));
+    W.forEach(w => {
+      const backend = byName.get(String(w.n || "").toLowerCase());
+      if(backend){
+        w.backendId = backend.id;
+        w.backendRestaurantId = backend.restaurant_id;
+        w.backendOnline = !!backend.is_online;
+        w.backendPushEnabled = !!backend.push_enabled;
+        w.backendAcceptedCount = backend.accepted_count || 0;
+        w.backendMissedCount = backend.missed_count || 0;
+        w.backendRejectedCount = backend.rejected_count || 0;
+        w.backendLoaded = true;
+      } else {
+        w.backendLoaded = false;
+      }
+    });
+    S.backendRosterLoaded = true;
+    S.backendRosterCount = (waiters || []).length;
+    if(!waiters || !waiters.length){S.backendRosterError = "No waiters were returned by the backend.";}
+  }catch(err){
+    S.backendRosterLoaded = false;
+    S.backendRosterError = err && err.message ? err.message : "The backend roster is unavailable.";
+    toast("Backend roster unavailable. Demo mode remains usable.");
+  }
+  S.backendRosterLoading = false;
+  D = true; render();
+}
 function init(){W=["Rahul","Aman","Vikas","Suresh","Mohit"].map((n,i)=>({id:i,n,on:true,push:true,miss:0,streak:0,rej:0,acc:0,last:0}));
-R=[];A=[];O=[];P={7:0};L=[];S={t:0,seq:0,lt:performance.now(),sv:[],sp:+(document.getElementById("sp")||{value:3}).value,table:7,cv:"home",cart:{},sel:0,tab:"c1",toast:"",tt:0,rid:500,oid:0,aid:0,tabs:false,queue:null,qt:0,pb:0,open:null,pick:{},ctext:"",view:"demo",net:true,wl:false,rj:null,offc:null,wn:{},qrbad:false,wbad:false,tsel:null,ac:[],scan:false,say:"To start, press one of the demo buttons above, or tap Water on the Customer screen.",look:"c1",pre:"",plan:null};D=true}
+R=[];A=[];O=[];P={7:0};L=[];S={t:0,seq:0,lt:performance.now(),sv:[],sp:+(document.getElementById("sp")||{value:3}).value,table:7,cv:"home",cart:{},sel:0,tab:"c1",toast:"",tt:0,rid:500,oid:0,aid:0,tabs:false,queue:null,qt:0,pb:0,open:null,customerSubmitting:false,pick:{},ctext:"",route:"customer",net:true,wl:false,al:false,wbad:false,abadr:"",backendRosterLoading:false,backendRosterLoaded:false,backendRosterError:"",backendRosterCount:0,wn:{},qrbad:false,tsel:null,ac:[],scan:false,say:"To begin, scan your table QR code. Sign-in, ordering, and payment services require backend integration not yet available.",look:"c1",pre:"",plan:null};D=true}
 const log=m=>{L.unshift(fmt(S.t)+"  "+m);L.length=Math.min(L.length,12)};
 const say=(m,l)=>{S.say=m;if(l)S.look=l;D=true};
 const toast=m=>{S.toast=m;S.tt=Date.now()+3500;D=true};
@@ -29,8 +82,30 @@ const tries=r=>r.at.filter(a=>!a.mgr&&a.st!="CANCELLED").length;   // manager as
 const atext=(a,r)=>a.type=="NONE"?"No waiter online":a.type=="LIMIT"?"Customer resent "+r.rsn+" times":tries(r)+" attempts fail";
 const rank=(a,b)=>fs(a)-fs(b)||load(a)-load(b)||a.last-b.last;
 function finish(id,who){const r=R.find(x=>x.id==id);if(!r||r.status!="ACCEPTED")return;r.status="CLOSED";S.sv.push(S.t-r.acc);log(`#${id} closed (${who})`);say("Request closed ("+who+"). The time from accept to done is used for the average service time on the Manager screen.","c3")}
-function cancelReq(id){if(!S.net)return toast("No internet. Please try again when the connection is back.");const r=R.find(x=>x.id==id);if(!r||!open(r)||r.status=="ACCEPTED")return;
- if(r.cur)end(r,"CANCELLED");r.cur=null;r.status="CANCELLED";A.forEach(a=>{if(a.r==r.id)a.open=false});log(`#${id} cancelled by customer`);toast("Request cancelled.");say("Customer cancelled the request. The waiter alert disappeared and any manager alert was closed.","c1");D=true}
+async function cancelReq(id){
+ const r=R.find(x=>x.id==id);if(!r||!open(r))return;
+ if(!r.backend){
+  if(!S.net)return toast("No internet. Please try again when the connection is back.");if(r.status=="ACCEPTED")return;
+  if(r.cur)end(r,"CANCELLED");r.cur=null;r.status="CANCELLED";A.forEach(a=>{if(a.r==r.id)a.open=false});log("#"+id+" cancelled by customer");toast("Request cancelled.");say("Customer cancelled the request. The waiter alert disappeared and any manager alert was closed.","c1");D=true;render();return;
+ }
+ if(!S.net){toast("No internet. Please try again when the connection is back.");return;}
+ try{
+  const response=await apiFetch("/service-requests/"+id+"/cancel",{method:"POST",body:{table_id:r.table}});
+  r.status=response.status;
+  r.cur=null;r.rs=false;
+  A.forEach(a=>{if(a.r==r.id)a.open=false});
+  if(response.closed_at)r.closedAt=Date.parse(response.closed_at);
+  log("#"+id+" cancelled by customer");
+  toast("Request cancelled.");
+  say("Customer cancelled the request. The backend closed the request and its alerts.","c1");
+ }catch(e){
+  if(e && e.status===409)toast(e.detail || "Accepted or completed requests cannot be cancelled.");
+  else if(e && e.status===404)toast(e.detail || "This request was not found.");
+  else toast((e && e.detail)?e.detail:"Request could not be cancelled. Please try again.");
+ }
+ D=true;render();
+}
+
 function placeOrder(){if(!S.net)return toast("No internet. Please try again when the connection is back.");
  const it=MENU.map((m,j)=>S.cart[j]?S.cart[j]+" "+m.n:"").filter(Boolean).join(", ");if(!it)return;
  O.push({id:++S.oid,table:S.table,items:it,s:"PENDING",w:null});S.cart={};S.cv="home";toast("Order sent.");
@@ -69,16 +144,56 @@ function tick(){const now=performance.now(),dt=Math.min(now-S.lt,5000)*S.sp;S.lt
  document.querySelectorAll("[data-cd]").forEach(e=>e.textContent=fmt(+e.dataset.cd-S.t));
  document.querySelectorAll("[data-age]").forEach(e=>e.textContent=fmt(S.t-+e.dataset.age));
  if(D)render()}
-function req(k,det){if(!S.net)return toast("No internet. Please try again when the connection is back.");
- const same=r=>r.table==S.table&&r.k==k&&(k!="custom"||r.d==(det||""))&&(["PENDING","ASSIGNED","ESCALATED","FAILED"].includes(r.status)||(r.status=="ACCEPTED"&&S.t-r.acc<CFG.DUP_ACCEPT));
- if(R.some(same))return toast("This request has already been sent.");
- const r={id:++S.rid,table:S.table,k,d:det||"",status:"PENDING",at:[],ex:[],cur:null,by:null,rsn:0,last:S.t,rs:false,t0:S.t,acc:0};R.push(r);
- log(`#${r.id} Table ${r.table}: ${LB(r)} request`);toast(LB(r)+" request sent.");assign(r)}
-function resend(id){const r=R.find(x=>x.id==id);if(!r||!r.rs)return;if(!S.net)return toast("No internet. Please try again when the connection is back.");
+async function req(k,det){
+ if(!S.net)return toast("No internet. Please try again when the connection is back.");
+ if(S.plan){
+  const same=r=>r.table==S.table&&r.k==k&&(k!="custom"||r.d==(det||""))&&(["PENDING","ASSIGNED","ESCALATED","FAILED"].includes(r.status)||(r.status=="ACCEPTED"&&S.t-r.acc<CFG.DUP_ACCEPT));
+  if(R.some(same))return toast("This request has already been sent.");
+  const r={id:++S.rid,table:S.table,k,d:det||"",status:"PENDING",at:[],ex:[],cur:null,by:null,rsn:0,last:S.t,rs:false,t0:S.t,acc:0,backend:false};R.push(r);
+  log(`#${r.id} Table ${r.table}: ${LB(r)} request`);toast(LB(r)+" request sent.");assign(r);D=true;render();return;
+ }
+ if(S.customerSubmitting)return toast("Request is already being sent.");
+ S.customerSubmitting=true;D=true;render();
+ try{
+  const response=await apiFetch("/service-requests",{method:"POST",body:{table_id:S.table,service_key:k,details:(det==null?"":String(det).trim())}});
+  const r={id:response.id,table:response.table_id,k:response.service_key,d:response.details==null?"":response.details,status:response.status,backend:true,backendAcceptedBy:response.accepted_by||null,backendResendCount:response.resend_count==null?0:response.resend_count,rsn:response.resend_count==null?0:response.resend_count,acc:response.accepted_at?Date.parse(response.accepted_at):null,closedAt:response.closed_at?Date.parse(response.closed_at):null,cur:null,by:null,at:[],ex:[],rs:false,last:S.t,t0:S.t};
+  R.push(r);log(`#${r.id} Table ${r.table}: ${LB(r)} request`);toast(LB(r)+" request sent.");say("Request sent and routed by the backend.","c1");
+ }catch(e){
+  if(e && e.status===409)toast(e.detail || "This request has already been sent.");
+  else toast((e && e.detail)?e.detail:"Request could not be sent. Please try again.");
+ }
+ S.customerSubmitting=false;D=true;render();
+}
+async function resend(id){
+ const r=R.find(x=>x.id==id);if(!r||!r.rs)return;
+ if(!r.backend){
+  if(!S.net)return toast("No internet. Please try again when the connection is back.");
+  if(r.rsn>=CFG.RESEND_MAX)return toast("Resend limit ("+CFG.RESEND_MAX+") reached.");if(r.cur)return toast("The request is currently with a waiter.");
+  r.rsn++;r.last=S.t;r.rs=false;if(r.status=="ACCEPTED"){r.ex.push(r.by);r.by=null}
+  A.forEach(a=>{if(a.r==r.id)a.open=false});r.at=[];r.status="PENDING";
+  log(`#${r.id} customer resent (#${r.rsn})`);toast("Request sent again.");say("Customer pressed Resend / Not received yet: a new routing cycle starts (the earlier waiter is skipped).","c2");assign(r);D=true;render();return;
+ }
+ if(!S.net){toast("No internet. Please try again when the connection is back.");return;}
  if(r.rsn>=CFG.RESEND_MAX)return toast("Resend limit ("+CFG.RESEND_MAX+") reached.");if(r.cur)return toast("The request is currently with a waiter.");
- r.rsn++;r.last=S.t;r.rs=false;if(r.status=="ACCEPTED"){r.ex.push(r.by);r.by=null}
- A.forEach(a=>{if(a.r==r.id)a.open=false});r.at=[];r.status="PENDING";
- log(`#${r.id} customer resent (#${r.rsn})`);toast("Request sent again.");say("Customer pressed Resend / Not received yet: a new routing cycle starts (the earlier waiter is skipped).","c2");assign(r)}
+ try{
+  const response=await apiFetch("/service-requests/"+id+"/resend",{method:"POST"});
+  r.rsn=response.resend_count==null?r.rsn+1:response.resend_count;
+  r.backendResendCount=r.rsn;
+  r.last=S.t;r.rs=false;
+  r.status=response.status;
+  r.cur=null;r.by=r.by;
+  r.acc=response.accepted_at?Date.parse(response.accepted_at):null;
+  r.at=[];
+  A.forEach(a=>{if(a.r==r.id)a.open=false});
+  log("#"+r.id+" customer resent (#"+r.rsn+")");
+  toast("Request sent again.");
+  say("Customer pressed Resend. The backend started a new routing cycle.","c1");
+ }catch(e){
+  toast((e && e.detail)?e.detail:"Resend was not available. Please try again.");
+ }
+ D=true;render();
+}
+
 function accept(wid,id){const r=R.find(x=>x.id==id);if(!r||!r.cur||r.cur.w!=wid||S.t>=r.cur.dl)return toast("This request has already expired.");
  const w=W[wid];w.acc++;w.streak=0;S.ac.push(S.t-r.at[r.at.length-1].t);end(r,"ACCEPTED");r.status="ACCEPTED";r.by=wid;r.acc=S.t;r.last=S.t;r.rs=false;
  A.forEach(a=>{if(a.r==r.id)a.open=false});
@@ -135,7 +250,8 @@ function wait(){if(!S.wl)return wlogin();
   +`<h4>My active requests</h4>`+(act.length?act.map(r=>`<div class="st acc"><div class="row"><span><b>Table ${r.table}</b>: ${LB(r)}</span><button class="b" data-act="wdone" data-id="${r.id}">Done</button></div></div>`).join(""):`<div class="mut sm">None right now. Tapping Done is optional, it only measures service time.</div>`)
   +`<h4>Today</h4><div class="mut sm">Accept ${w.acc}, Missed ${w.miss}, Reject ${w.rej}</div>`}
 const chip=(a)=>`<span class="chip ${a.st}" title="${a.st}">${W[a.w].n} ${a.st.toLowerCase()}${a.rs?" ("+a.rs+")":""}${a.st=="WAITING"&&a.dl?` <span data-cd="${a.dl}">${fmt(a.dl-S.t)}</span>`:a.e!=null?` ${Math.round((a.e-a.t)/1000)}s`:""}</span> `;
-function mgr(){const on=W.filter(w=>w.on).length,orq=R.filter(open),oa=A.filter(a=>a.open),ord=O.filter(o=>o.s!="SERVED");
+function adminLogin(){return `<div style="padding-top:30px"><h3 style="font-size:22px;margin:0 0 4px">Admin Login</h3><div class="mut">Local development only. Real authentication and admin account management are not connected yet.</div><div class="sm mut" style="margin-top:16px">Demo username</div><div class="inp">admin@restaurant.local</div><div class="sm mut" style="margin-top:12px">Demo password</div><div class="inp">&bull; &bull; &bull; &bull; &bull; &bull; &bull; &bull;</div>${S.abadr?`<div class="st red">${S.abadr}</div>`:""}<button class="b p" style="width:100%;min-height:50px;margin-top:16px" data-act="alogin">Login (demo)</button><button class="b" style="width:100%;margin-top:8px" data-act="abad">Demo: wrong credentials</button><p class="mut sm" style="margin-top:12px">Read-only preview of service requests, waiter availability, and table-map routing state. Operational administration requires secure backend APIs.</p></div>`}
+function mgr(){if(!S.al)return adminLogin();const on=W.filter(w=>w.on).length,orq=R.filter(open),oa=A.filter(a=>a.open),ord=O.filter(o=>o.s!="SERVED");
  const k=(n,v,c)=>`<div class="kpi ${c||""}"><b>${v}</b><span class="mut sm">${n}</span></div>`;
  const al=oa.map(a=>{const r=R.find(x=>x.id==a.r);return `<div class="al"><div class="row"><b style="color:var(--red)">HIGH PRIORITY: #${r.id}, Table ${r.table}, ${LB(r)}</b><span class="sm">${atext(a,r)}</span></div><div class="sm" style="margin:6px 0">${r.at.map(chip).join("")||"No attempts"}</div>
  <div class="row"><span><select id="as${a.id}" aria-label="Choose waiter"><option value="">Choose waiter</option>${W.filter(w=>w.on).map(w=>`<option value="${w.id}">${w.n} (load ${load(w)})</option>`).join("")}</select> <button class="b p" data-act="asg" data-id="${a.id}">Assign</button></span><button class="b" data-act="res" data-id="${a.id}">Resolve</button></div></div>`}).join("");
@@ -166,12 +282,15 @@ const INV=[["Customer",["QR landing / scan","Invalid or expired QR","Welcome, Ta
 function flowV(){const T={S:"Screen",A:"User action",Y:"System",D:"Decision",OK:"Success",X:"Failure",T:"Timeout",M:"Manager"};
  const row=r=>`<div class="fr">`+r.map(t=>t.startsWith("->")?`<span class="fa"><b>${t.slice(2)}</b>&rarr;</span>`:`<span class="fn ${t.split(":")[0]}">${t.slice(t.indexOf(":")+1)}</span>`).join("")+`</div>`;
  return `<div class="panel"><h3>Wireflow: Customer, Waiter, Manager and Shared system</h3><div class="mut sm">This is the design map of the simulation, not a real backend. Routing is sequential: 1st waiter 45s, 2nd 30s, 3rd 30s, then straight to the manager. Online waiters only, one at a time, never broadcast.</div><div class="lg" style="margin-top:8px">${Object.entries(T).map(([k,v])=>`<span class="fn ${k}">${v}</span>`).join("")}</div></div>`+FLOWS.map(f=>`<div class="panel"><h3>${f[0]}</h3>${f[1].map(row).join("")}</div>`).join("")+`<div class="panel"><h3>Screen inventory</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">${INV.map(i=>`<div><b>${i[0]} (${i[1].length})</b><ul style="margin:6px 0;padding-left:18px">${i[1].map(x=>`<li>${x}</li>`).join("")}</ul></div>`).join("")}</div></div>`}
-function render(){D=false;document.getElementById("vdemo").style.display=S.view=="demo"?"":"none";const vf=document.getElementById("vflow");vf.style.display=S.view=="flow"?"":"none";if(S.view=="flow"&&!vf.dataset.d){vf.innerHTML=flowV();vf.dataset.d=1}
- document.getElementById("vb1").classList.toggle("on",S.view=="demo");document.getElementById("vb2").classList.toggle("on",S.view=="flow");document.getElementById("netb").textContent="Network: "+(S.net?"ON":"OFF (connection lost demo)");
+function render(){D=false;document.body.dataset.route=S.route;const shell=document.getElementById("app-shell");if(shell)shell.style.display=S.route=="wireflow"?"none":"";
+ const devPanel=document.getElementById("demo-panel");if(devPanel)devPanel.style.display=S.route=="dev"?"":"none";
+ const tools=document.querySelector(".header-tools");if(tools)tools.style.display=(S.route=="dev"||S.route=="wireflow")?"flex":"none";
+ const vf=document.getElementById("vflow");if(vf){vf.style.display=S.route=="wireflow"?"":"none";if(S.route=="wireflow"&&!vf.dataset.d){vf.innerHTML=flowV();vf.dataset.d=1}}
+ document.querySelectorAll(".main-nav button").forEach(b=>{const id=b.dataset.id;if(b.dataset.act=="route") b.classList.toggle("on",S.route==id);});document.getElementById("netb").textContent="Network: "+(S.net?"ON":"OFF (connection lost demo)");
 const y=[["cust",cust],["wait",wait],["mgr",mgr]];
  const sv={};document.querySelectorAll('#mgr select[id^="as"]').forEach(s=>sv[s.id]=s.value);const ae=document.activeElement,keep=ae&&ae.id=="ctext";y.forEach(([id,f])=>{const e=document.getElementById(id),sc=e.scrollTop;e.innerHTML=f();e.scrollTop=sc});if(keep){const e=document.getElementById("ctext");if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}}
  Object.entries(sv).forEach(([id,v])=>{const e=document.getElementById(id);if(e&&[...e.options].some(o=>o.value==v))e.value=v});
- ["c1","c2","c3"].forEach(c=>{const e=document.getElementById(c);e.classList.toggle("show",S.tab==c);e.classList.toggle("look",S.look==c)});document.getElementById("say").innerHTML="<b>What is happening now:</b> "+S.say;document.getElementById("jr").innerHTML=jr();
+ const visiblePanel=S.route=="customer"?"c1":S.route=="waiter"?"c2":S.route=="admin"?"c3":S.tab;["c1","c2","c3"].forEach(c=>{const e=document.getElementById(c);e.classList.toggle("show",c==visiblePanel);});document.getElementById("say").innerHTML="<b>What is happening now:</b> "+S.say;document.getElementById("jr").innerHTML=jr();
  document.getElementById("tabs").innerHTML=[["c1","Customer"],["c2","Waiter"],["c3","Manager"]].map(t=>`<button data-act="tab" data-id="${t[0]}" class="${S.tab==t[0]?"on":""}">${t[1]}${S.look==t[0]?" \u25cf":""}</button>`).join("")}
 const ACT={
  demo:b=>demo(b.dataset.k), req:b=>req(b.dataset.k), resend:(b,id)=>resend(id), cancel:(b,id)=>cancelReq(id),
@@ -184,7 +303,10 @@ const ACT={
  adv:(b,id)=>{const o=O.find(x=>x.id==id);if(!o||o.s=="SERVED")return;o.s=OS[OS.indexOf(o.s)+1];if(o.s=="READY")readyFor(o)},
  served:(b,id)=>{const o=O.find(x=>x.id==id);if(o){o.s="SERVED";log(`Order #${id} served by ${W[S.sel].n}`)}},
  scan:()=>{S.scan=true;say("The customer scanned the QR code. The table was detected automatically and a session was created.","c1")},
- view:b=>{S.view=b.dataset.id}, wlogin:()=>{S.wl=true;S.wbad=false}, wbad:()=>{S.wbad=true},
+ route:b=>{S.route=b.dataset.id;if(S.route=="customer")S.tab="c1";if(S.route=="waiter")S.tab="c2";if(S.route=="admin")S.tab="c3";if(S.route=="dev"&&["c1","c2","c3"].indexOf(S.tab)<0)S.tab="c1";},
+  wlogin:()=>{S.wl=true;S.wbad=false}, wbad:()=>{S.wbad=true},
+  alogin:()=>{S.al=true;S.abadr="";S.look="c3";S.say="Admin preview session started. This is not real authentication."; D=true},
+  abad:()=>{S.abadr="Demo credentials did not match the values shown. No real authentication is available.";S.al=false},
  togw:(b,id)=>{const ww=W[id];if(ww.on&&load(ww))S.offc=id;else toggle(id)},
  offok:()=>{const id=S.offc;S.offc=null;if(id!=null)toggle(id)}, offx:()=>{S.offc=null},
  rjopen:(b,id)=>{S.rj=id}, rjx:()=>{S.rj=null}, rjgo:(b,id)=>{reject(S.sel,id,b.dataset.r);S.rj=null},
@@ -199,8 +321,5 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(
  if(USER_ACTS.has(a))S.plan=null;fn(b,+b.dataset.id,+b.dataset.i);D=true;render()});
 document.addEventListener("input",e=>{if(e.target.id=="ctext")S.ctext=e.target.value});
 document.addEventListener("change",e=>{if(e.target.dataset.sel=="table"){S.table=+e.target.value;D=true;render()}if(e.target.id=="sp")S.sp=+e.target.value});
-function fit(){const w=innerWidth,narrow=w<1300,tm=narrow&&typeof S!="undefined"&&S&&S.tabs,root=document.documentElement,zm=(narrow&&!tm)?w/1320:1,H=innerHeight/zm;
- root.classList.toggle("tabs",!!tm);document.body.style.zoom=zm;
- const z=Math.max(.5,Math.min(1,(H-90)/864,tm?(w-24)/410:((narrow?1320:w)-600)/820));root.style.setProperty("--z",z);
- const tb=document.getElementById("tabsb");if(tb){tb.style.display=narrow?"":"none";tb.textContent=tm?"Full view":"Tabs view"}}
-addEventListener("resize",fit);fit();init();render();setInterval(tick,250);
+function fit(){const root=document.documentElement;root.classList.remove("tabs");document.body.style.zoom="";root.style.removeProperty("--z");const tb=document.getElementById("tabsb");if(tb)tb.style.display="none"}
+addEventListener("resize",fit);fit();init();const __qp=new URLSearchParams(location.search);const __tbl=Number(__qp.get("table"));if(Number.isInteger(__tbl)&&__tbl>=1&&__tbl<=CFG.TABLES){S.table=__tbl;S.scan=true;}const __workspace=__qp.get("workspace");if(__workspace&&["customer","waiter","admin","dev","wireflow"].includes(__workspace))S.route=__workspace;render();setTimeout(refreshBackendWaiterRoster,250);setInterval(tick,250);
