@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Smart Table Service — Grand Bistro & Cafe</title>
+  <meta name="description" content="Professional restaurant table service dispatch, digital menu ordering, waiter workstation, and management control platform.">
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo.svg">
+  <link rel="stylesheet" href="assets/css/main.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+  <!-- Dynamic Top Header Container -->
+  <div id="sts-header-container"></div>
+
+  <!-- Primary Application View Container (Swapped by Router) -->
+  <main class="sts-main" id="sts-app-view" role="main" aria-live="polite">
+    <div style="text-align:center;padding:4rem 1rem;">
+      <div class="skeleton" style="width:60px;height:60px;border-radius:50%;margin:0 auto 1.5rem auto;"></div>
+      <div class="skeleton" style="width:240px;height:24px;margin:0 auto 0.75rem auto;"></div>
+      <div class="skeleton" style="width:180px;height:16px;margin:0 auto;"></div>
+    </div>
+  </main>
+
+  <!-- Platform Footer -->
+  <footer style="text-align:center;padding:2rem 1rem 3rem 1rem;font-size:0.75rem;color:var(--text-secondary);border-top:1px solid var(--border-subtle);margin-top:auto;">
+    <div><strong>Grand Bistro &amp; Cafe</strong> • Smart Table Service &amp; Waiter Routing System</div>
+    <div style="margin-top:0.5rem;display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;">
+      <a href="#/customer?table=7" style="color:var(--text-secondary);">Customer View (Table 7)</a>
+      <a href="#/waiter/dashboard" style="color:var(--text-secondary);">Waiter Workstation</a>
+      <a href="#/manager/dashboard" style="color:var(--text-secondary);">Manager Operations</a>
+      <a href="#/auth" style="color:var(--text-secondary);">Staff Login</a>
+    </div>
+  </footer>
+
+  <!-- Modular Application Entry Point -->
+  <script type="module" src="assets/js/main.js"></script>
+</body>
+</html>

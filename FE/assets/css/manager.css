@@ -1,0 +1,121 @@
+/* === Manager Console Styles === */
+/* Table 23 Map Grid (Admin/Manager View) */
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.85rem;
+}
+
+.table-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.table-box:hover {
+  border-color: var(--border-accent);
+  transform: translateY(-2px);
+  background: var(--bg-surface-hover);
+}
+
+.table-box.status-alert {
+  border-color: var(--status-danger);
+  background: var(--status-danger-bg);
+  box-shadow: 0 0 12px var(--status-danger-bg);
+}
+
+.table-box.status-acc {
+  border-color: var(--status-success);
+  background: var(--status-success-bg);
+}
+
+.table-box.status-wait {
+  border-color: var(--status-warning);
+  background: var(--status-warning-bg);
+}
+
+.table-num {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.table-section-tag {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.kpi-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  text-align: center;
+}
+.kpi-val {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+}
+.kpi-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+.roster-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.roster-table th, .roster-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+}
+.roster-table th {
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.alert-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.manager-alert-item {
+  background: var(--bg-surface);
+  border-left: 4px solid var(--status-warning);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.manager-alert-item.urgent {
+  border-left-color: var(--status-danger);
+  background: rgba(239, 68, 68, 0.05);
+}

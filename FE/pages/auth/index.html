@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Staff Portal Login — Grand Bistro & Cafe</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/images/logo.svg">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+  <div id="sts-header-container"></div>
+  <main class="sts-main" id="sts-app-view" role="main"></main>
+  <script type="module">
+    import { router } from '../../assets/js/main.js';
+    if (!window.location.hash.startsWith('#/auth')) {
+      window.location.hash = '#/auth';
+    }
+  </script>
+</body>
+</html>

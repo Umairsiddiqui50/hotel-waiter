@@ -1,0 +1,27 @@
+# Environment Variables
+.env
+*.env
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Databases & Backups (Keep private, exclude from git tracking)
+*.db
+*.db.bak
+*.sqlite
+*.sqlite3
+
+# Node / Frontend Artifacts
+node_modules/
+dist/
+.DS_Store
+Thumbs.db
+
+# IDE & Editor
+.vscode/
+.idea/

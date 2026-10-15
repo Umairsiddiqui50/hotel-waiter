@@ -1,0 +1,98 @@
+/* === Waiter Workstation Styles === */
+/* Waiter View Task Card with Pulse Countdown */
+.waiter-task-card {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-accent);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-glow);
+  margin-bottom: 1.25rem;
+}
+
+.waiter-countdown-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-surface-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.waiter-countdown-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--status-success), var(--status-warning), var(--status-danger));
+  transition: width 1s linear;
+}
+
+/* Skeleton Loading */
+.skeleton {
+  background: linear-gradient(90deg, #162032 25%, #223048 50%, #162032 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Responsive Media Queries */
+@media (max-width: 640px) {
+  .sts-header-inner {
+    padding: 0.5rem 0.75rem;
+  }
+  .sts-brand-title {
+    font-size: 0.9375rem;
+  }
+  .sts-main {
+    padding: 1rem 0.75rem 5rem 0.75rem;
+  }
+  .menu-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal-dialog {
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+}
+
+.waiter-profile-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  margin-bottom: 1.5rem;
+}
+.duty-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+.duty-active { background: rgba(16, 185, 129, 0.15); color: var(--status-success); border: 1px solid rgba(16, 185, 129, 0.3); }
+.duty-break { background: rgba(245, 158, 11, 0.15); color: var(--status-warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+.duty-offline { background: rgba(148, 163, 184, 0.15); color: var(--text-secondary); border: 1px solid rgba(148, 163, 184, 0.3); }
+
+.countdown-bar-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin: 0.75rem 0;
+}
+.countdown-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--status-success), var(--status-warning), var(--status-danger));
+  width: 100%;
+  transition: width 1s linear;
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Customer Dining Portal — Grand Bistro & Cafe</title>
+  <link rel="icon" type="image/svg+xml" href="../../assets/images/logo.svg">
+  <link rel="stylesheet" href="../../assets/css/main.css">
+</head>
+<body>
+  <div id="sts-header-container"></div>
+  <main class="sts-main" id="sts-app-view" role="main"></main>
+  <script type="module">
+    import { renderCustomerView } from '../../assets/js/customer.js';
+    import { router } from '../../assets/js/main.js';
+    const params = new URLSearchParams(window.location.search);
+    if (!window.location.hash.startsWith('#/customer')) {
+      window.location.hash = '#/customer' + (params.get('table') ? `?table=${params.get('table')}` : '?table=7');
+    }
+  </script>
+</body>
+</html>

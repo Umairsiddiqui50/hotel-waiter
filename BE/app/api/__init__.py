@@ -1,0 +1,1 @@
+"""HTTP API package for the hotel waiter service."""
