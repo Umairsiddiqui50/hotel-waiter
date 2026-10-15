@@ -3,84 +3,37 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Smart Table Service — Restaurant Website</title>
-  <meta name="description" content="Scan your table QR code to browse the menu and request table service. Staff workspaces for waiters and restaurant admins.">
+  <title>Smart Table Service — Grand Bistro & Cafe</title>
+  <meta name="description" content="Professional browser-based restaurant platform: table service dispatch, digital menu ordering, waiter workstation, and management control.">
   <link rel="stylesheet" href="design.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
-<body data-route="customer">
-  <header class="site-header">
-    <div class="site-header-inner">
-      <a class="brand" href="#/customer" data-act="route" data-id="customer">
-        <span class="brand-mark" aria-hidden="true">🍽</span>
-        <span class="brand-text">
-          <strong>Smart Table Service</strong>
-          <small id="app-subtitle">Grand Bistro &amp; Cafe · table service website</small>
-        </span>
-      </a>
-      <nav class="site-nav" aria-label="Website workspaces">
-        <a id="route-customer" href="#/customer" data-act="route" data-id="customer">Customer</a>
-        <a id="route-waiter" href="#/waiter/login" data-act="route" data-id="waiter">Waiter</a>
-        <a id="route-admin" href="#/admin/login" data-act="route" data-id="admin">Admin</a>
-        <a id="route-dev" href="#/dev" data-act="route" data-id="dev">Development</a>
-      </nav>
+<body>
+  <!-- Dynamic Top Header Container -->
+  <div id="sts-header-container"></div>
+
+  <!-- Primary Application View Container (Swapped by Router) -->
+  <main class="sts-main" id="sts-app-view" role="main" aria-live="polite">
+    <div style="text-align:center;padding:4rem 1rem;">
+      <div class="skeleton" style="width:60px;height:60px;border-radius:50%;margin:0 auto 1.5rem auto;"></div>
+      <div class="skeleton" style="width:240px;height:24px;margin:0 auto 0.75rem auto;"></div>
+      <div class="skeleton" style="width:180px;height:16px;margin:0 auto;"></div>
     </div>
-  </header>
+  </main>
 
-  <div id="app-shell">
-    <main class="app-views">
-      <section class="view-panel" id="c1" data-view="customer" aria-label="Customer website">
-        <div class="surface" id="cust"></div>
-      </section>
+  <!-- Platform Footer -->
+  <footer style="text-align:center;padding:2rem 1rem 3rem 1rem;font-size:0.75rem;color:var(--text-muted);border-top:1px solid var(--border-subtle);margin-top:auto;">
+    <div><strong>Grand Bistro &amp; Cafe</strong> • Smart Table Service Restaurant Platform</div>
+    <div style="margin-top:0.5rem;display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;">
+      <a href="#/customer?table=7" style="color:var(--text-secondary);">Customer View (Table 7)</a>
+      <a href="#/waiter/dashboard" style="color:var(--text-secondary);">Waiter Workstation</a>
+      <a href="#/admin/dashboard" style="color:var(--text-secondary);">Admin Operations</a>
+      <a href="#/kitchen" style="color:var(--text-secondary);">Kitchen KDS</a>
+    </div>
+  </footer>
 
-      <section class="view-panel" id="c2" data-view="waiter" aria-label="Waiter workspace">
-        <div class="surface" id="wait"></div>
-      </section>
-
-      <section class="view-panel" id="c3" data-view="admin" aria-label="Admin workspace">
-        <div class="surface" id="mgr"></div>
-      </section>
-
-      <section class="view-panel" id="cdev" data-view="dev" aria-label="Development workspace">
-        <div class="panel">
-          <h2>Development workspace</h2>
-          <p class="mut">Local simulation, demo scenarios, routing-journey view, and wireflow map. Not part of the customer-facing website.</p>
-          <div class="demo-panel" id="demo-panel" aria-label="Demo controls">
-            <div class="header-tools" id="dev-tools">
-              <label class="speed-control">Speed
-                <select id="sp" aria-label="Simulation speed">
-                  <option value="1">1x (real: 45 s)</option>
-                  <option value="3" selected>3x (45 s = 15 s)</option>
-                  <option value="10">10x (45 s = 4.5 s)</option>
-                </select>
-              </label>
-              <button data-act="reset">Reset</button>
-              <button id="netb" data-act="net">Network: ON</button>
-            </div>
-            <div class="demo-actions">
-              <b>Run demo (auto):</b>
-              <button class="b" data-act="demo" data-k="n">1. Normal: Rahul accepts</button>
-              <button class="b" data-act="demo" data-k="r">2. Reject, then accept</button>
-              <button class="b" data-act="demo" data-k="i">3. Nobody accepts</button>
-              <button class="b" data-act="demo" data-k="o">4. No waiter online</button>
-              <button class="b" data-act="demo" data-k="f">5. Fair share (10 requests)</button>
-              <button class="b" data-act="demo" data-k="p">6. Primary waiter memory (Table 1)</button>
-            </div>
-            <div class="demo-note">Development only: demo navigation and demo data. Real login, orders, payments, and staff management are not implemented.</div>
-            <div class="demo-status" id="say" aria-live="polite"></div>
-            <div class="journey-panel panel" id="jr"></div>
-          </div>
-          <aside class="wireflow-drawer" id="vflow"></aside>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <span>Smart Table Service · demo website.</span>
-      <span id="integration-note">Service requests use the live backend API. Login, ordering, and payment APIs are pending integration.</span>
-    </footer>
-  </div>
-
-  <div id="tabs" class="hidden-tab-target" aria-hidden="true"></div>
-  <script src="app.js"></script>
+  <!-- Modular JavaScript Entry Point -->
+  <script type="module" src="src/main.js"></script>
 </body>
 </html>
