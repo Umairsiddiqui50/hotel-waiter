@@ -7,8 +7,14 @@ from sqlalchemy import JSON, Dialect, String, TypeDecorator, text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
+from dotenv import load_dotenv
+
+_env_file = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
+if os.path.exists(_env_file):
+    load_dotenv(_env_file)
+
 # Database URL from environment or fallback to hotel_waiter.db
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./hotel_waiter.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "mysql+aiomysql://root:8094271418@127.0.0.1:3306/hotel_waiter_db")
 
 # Guarantee consistent SQLite path resolution regardless of caller working directory
 if DATABASE_URL.startswith("sqlite+aiosqlite:///./"):
